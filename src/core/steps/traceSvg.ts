@@ -1,7 +1,10 @@
 /**
  * 位图描摹 - 将二值图像转换为 SVG 路径
  * 基于 Marching Squares 算法实现轮廓提取
+ * 使用 Catmull-Rom 样条转贝塞尔曲线实现平滑
  */
+
+import { pointsToCurvePath, getCornerThreshold, getTension } from '../utils/curvefitting'
 
 interface Point {
   x: number
@@ -215,7 +218,7 @@ function perpendicularDistance(point: Point, lineStart: Point, lineEnd: Point): 
 }
 
 /**
- * 将点数组转换为 SVG path d 属性
+ * 将点数组转换为 SVG path d 属性（折线版本，用于对比）
  */
 function pointsToPathD(points: Point[]): string {
   if (points.length === 0) return ''
@@ -232,12 +235,13 @@ function pointsToPathD(points: Point[]): string {
 }
 
 /**
- * 描摹二值图像生成 SVG
+ * 描摹二值图像生成 SVG（使用曲线拟合）
  * @param imageData 二值图像数据（黑白）
  * @param pathOmit 路径简化程度（值越大简化越多）
+ * @param useCurve 是否使用曲线拟合（默认 true）
  * @returns SVG 字符串
  */
-export function traceSvg(imageData: ImageData, pathOmit: number): string {
+export function traceSvg(imageData: ImageData, pathOmit: number, useCurve: boolean = true): string {
   const { width, height } = imageData
 
   // 提取轮廓
@@ -250,11 +254,18 @@ export function traceSvg(imageData: ImageData, pathOmit: number): string {
     points: simplifyPath(c.points, tolerance),
   }))
 
+  // 计算曲线参数
+  const cornerThreshold = getCornerThreshold(pathOmit)
+  const tension = getTension(pathOmit)
+
   // 生成 SVG 路径
   const paths: string[] = []
   for (const contour of simplifiedContours) {
     if (contour.points.length >= 3) {
-      const d = pointsToPathD(contour.points)
+      // 根据选项使用曲线或折线
+      const d = useCurve
+        ? pointsToCurvePath(contour.points, cornerThreshold, tension)
+        : pointsToPathD(contour.points)
       paths.push(`<path d="${d}" fill="#000000" fill-rule="evenodd"/>`)
     }
   }
@@ -265,6 +276,13 @@ ${paths.join('\n')}
 </svg>`
 
   return svg
+}
+
+/**
+ * 描摹二值图像生成 SVG（折线版本，保留用于对比）
+ */
+export function traceSvgPolyline(imageData: ImageData, pathOmit: number): string {
+  return traceSvg(imageData, pathOmit, false)
 }
 
 /**
