@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>剪影图（黑白SVG）快速生成</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 20px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    label { display:block; font-size: 13px; color:#333; margin-bottom: 4px; }
+    input[type="range"] { width: 100%; }
+    button { padding: 10px 12px; border-radius: 10px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+    button:hover { background:#f6f6f6; }
+    .btns { display:flex; gap:10px; flex-wrap: wrap; }
+    .hint { color:#666; font-size: 12px; line-height: 1.4; }
+    canvas { width: 100%; height: auto; border-radius: 10px; border: 1px solid #eee; }
+    #svgPreview { width:100%; min-height: 240px; border: 1px solid #eee; border-radius: 10px; background: linear-gradient(45deg,#fafafa 25%,transparent 25%),linear-gradient(-45deg,#fafafa 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#fafafa 75%),linear-gradient(-45deg,transparent 75%,#fafafa 75%); background-size: 20px 20px; background-position: 0 0,0 10px,10px -10px,-10px 0px; }
+  </style>
+</head>
+<body>
+  <h2>剪影图快速制作（上传图片 → 黑白描摹 → 导出 SVG/PNG）</h2>
+  <p class="hint">
+    全程在浏览器本地完成，不上传服务器。建议：人物/物体轮廓清晰、背景简单时效果最好。
+  </p>
+
+  <div class="card">
+    <input id="file" type="file" accept="image/*" />
+    <div style="height:10px"></div>
+    <div class="controls">
+      <div>
+        <label>阈值（黑白分割）：<span id="thrVal">160</span></label>
+        <input id="thr" type="range" min="0" max="255" value="160" />
+      </div>
+      <div>
+        <label>平滑/简化（pathomit）：<span id="omitVal">8</span></label>
+        <input id="omit" type="range" min="0" max="40" value="8" />
+      </div>
+      <div>
+        <label><input id="invert" type="checkbox" /> 反相（把亮的变黑）</label>
+        <div class="hint">适合“黑底白字”或主体较亮的图。</div>
+      </div>
+      <div>
+        <label><input id="removeWhite" type="checkbox" checked /> 忽略白色（只保留黑色剪影）</label>
+        <div class="hint">会删除/隐藏 SVG 中的白色填充路径。</div>
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+    <div class="btns">
+      <button id="gen" disabled>生成剪影 SVG</button>
+      <button id="dlSvg" disabled>下载 SVG</button>
+      <button id="dlPng" disabled>下载 PNG</button>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="row">
+    <div class="card">
+      <h3 style="margin-top:0">预处理（黑白）预览</h3>
+      <canvas id="bwCanvas"></canvas>
+      <div class="hint" style="margin-top:8px">
+        这里看到的黑白结果，会被用于描摹。想要更“剪影”，就把主体调到更黑、背景更白。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">SVG 预览</h3>
+      <div id="svgPreview"></div>
+      <div class="hint" style="margin-top:8px">
+        若轮廓破碎：提高阈值或关掉反相；若细节过多：把 pathomit 调大。
+      </div>
+    </div>
+  </div>
+
+  <!-- ImageTracerJS (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const fileEl = $("file");
+    const genBtn = $("gen");
+    const dlSvgBtn = $("dlSvg");
+    const dlPngBtn = $("dlPng");
+
+    const thrEl = $("thr");
+    const omitEl = $("omit");
+    const invertEl = $("invert");
+    const removeWhiteEl = $("removeWhite");
+
+    const thrValEl = $("thrVal");
+    const omitValEl = $("omitVal");
+
+    const bwCanvas = $("bwCanvas");
+    const bwCtx = bwCanvas.getContext("2d", { willReadFrequently: true });
+
+    const svgPreview = $("svgPreview");
+
+    let originalBitmap = null;
+    let lastSvgText = "";
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    function preprocessToBW() {
+      if (!originalBitmap) return;
+
+      // 适配画布大小（保持原图像素，避免描摹失真）
+      bwCanvas.width = originalBitmap.width;
+      bwCanvas.height = originalBitmap.height;
+
+      bwCtx.clearRect(0, 0, bwCanvas.width, bwCanvas.height);
+      bwCtx.drawImage(originalBitmap, 0, 0);
+
+      const img = bwCtx.getImageData(0, 0, bwCanvas.width, bwCanvas.height);
+      const d = img.data;
+
+      const thr = Number(thrEl.value);
+      const inv = invertEl.checked;
+
+      // 灰度 + 阈值
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i+1], b = d[i+2];
+        // 经典亮度
+        let y = 0.2126*r + 0.7152*g + 0.0722*b;
+        if (inv) y = 255 - y;
+        const v = (y < thr) ? 0 : 255; // 黑 / 白
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 255;
+      }
+
+      bwCtx.putImageData(img, 0, 0);
+      return img;
+    }
+
+    function stripWhiteFromSvg(svgText) {
+      // 解析 SVG 并移除白色填充形状
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, "image/svg+xml");
+      const svg = doc.documentElement;
+
+      const nodes = svg.querySelectorAll("[fill]");
+      nodes.forEach(n => {
+        const fill = (n.getAttribute("fill") || "").trim().toLowerCase();
+        const isWhite =
+          fill === "#fff" ||
+          fill === "#ffffff" ||
+          fill === "white" ||
+          fill.startsWith("rgb(255") ||
+          fill.startsWith("rgba(255");
+
+        if (isWhite) {
+          // 删除白色形状（更符合“忽略白色”）
+          n.remove();
+        }
+      });
+
+      // 确保背景透明（如果有 rect 背景也删掉白色 fill 的）
+      return new XMLSerializer().serializeToString(svg);
+    }
+
+    async function generateSvg() {
+      const bwImgData = preprocessToBW();
+      if (!bwImgData) return;
+
+      // ImageTracer 参数：2 色（黑白），并提供简单调节项
+      const options = {
+        // 强制 2 色
+        numberofcolors: 2,
+        // 简化：值越大越“粗糙/简化”
+        pathomit: Number(omitEl.value),
+        // 下面两个对轮廓拟合也有影响
+        ltres: 1, // 直线阈值
+        qtres: 1  // 曲线阈值
+      };
+
+      // 将 ImageData → SVG
+      let svgText = ImageTracer.imageDataToSVG(bwImgData, options);
+
+      if (removeWhiteEl.checked) {
+        svgText = stripWhiteFromSvg(svgText);
+      }
+
+      lastSvgText = svgText;
+
+      // 预览
+      svgPreview.innerHTML = svgText;
+
+      dlSvgBtn.disabled = false;
+      dlPngBtn.disabled = false;
+    }
+
+    async function exportPngFromSvg(svgText) {
+      // 把 SVG 渲染到 canvas 再导出 PNG
+      const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+
+      const img = new Image();
+      img.decoding = "async";
+
+      await new Promise((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      const out = document.createElement("canvas");
+      out.width = img.width;
+      out.height = img.height;
+      const ctx = out.getContext("2d");
+      ctx.clearRect(0, 0, out.width, out.height);
+      ctx.drawImage(img, 0, 0);
+
+      URL.revokeObjectURL(url);
+
+      const pngBlob = await new Promise((resolve) => out.toBlob(resolve, "image/png"));
+      return pngBlob;
+    }
+
+    // UI events
+    thrEl.addEventListener("input", () => {
+      thrValEl.textContent = thrEl.value;
+      if (originalBitmap) preprocessToBW();
+    });
+    omitEl.addEventListener("input", () => omitValEl.textContent = omitEl.value);
+    invertEl.addEventListener("change", () => originalBitmap && preprocessToBW());
+    removeWhiteEl.addEventListener("change", () => lastSvgText && (svgPreview.innerHTML = (removeWhiteEl.checked ? stripWhiteFromSvg(lastSvgText) : lastSvgText)));
+
+    fileEl.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+
+      const imgBlobUrl = URL.createObjectURL(f);
+      const img = new Image();
+      img.decoding = "async";
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = imgBlobUrl;
+      });
+
+      originalBitmap = await createImageBitmap(img);
+      URL.revokeObjectURL(imgBlobUrl);
+
+      preprocessToBW();
+      genBtn.disabled = false;
+
+      // 清空上次结果
+      lastSvgText = "";
+      svgPreview.innerHTML = "";
+      dlSvgBtn.disabled = true;
+      dlPngBtn.disabled = true;
+    });
+
+    genBtn.addEventListener("click", generateSvg);
+
+    dlSvgBtn.addEventListener("click", () => {
+      if (!lastSvgText) return;
+      downloadBlob(new Blob([lastSvgText], { type: "image/svg+xml;charset=utf-8" }), "silhouette.svg");
+    });
+
+    dlPngBtn.addEventListener("click", async () => {
+      if (!lastSvgText) return;
+      const pngBlob = await exportPngFromSvg(lastSvgText);
+      downloadBlob(pngBlob, "silhouette.png");
+    });
+  </script>
+</body>
+</html>

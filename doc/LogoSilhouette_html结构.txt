@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>LogoSilhouette ¡ª Free Logo Silhouette Generator (SVG, PNG, JPG)</title>
+  <meta name="description" content="Convert any logo image into a clean black silhouette SVG. Export transparent PNG or white-background JPG in 512/1024/2048. Free & browser-based." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="LogoSilhouette ¡ª Free Logo Silhouette Generator" />
+  <meta property="og:description" content="Turn any logo image into a clean black silhouette SVG. Export SVG, PNG, or JPG in seconds." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Canonical (fill in with your final URL) -->
+  <link rel="canonical" href="https://your-domain.com/logosilhouette" />
+
+  <!-- Your existing site CSS pipeline goes here -->
+  <!-- <link rel="stylesheet" href="/styles.css" /> -->
+</head>
+
+<body class="page page-logosilhouette">
+  <!-- ========= Header / Navigation ========= -->
+  <header class="site-header" data-section="header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">AI Logo Creator</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-link" href="/tools" data-evt="nav_link_click" data-link-id="tools">Tools</a>
+        <a class="nav-link" href="/pricing" data-evt="nav_link_click" data-link-id="pricing">Pricing</a>
+        <a class="nav-link" href="/blog" data-evt="nav_link_click" data-link-id="blog">Blog</a>
+        <a class="nav-link" href="/login" data-evt="nav_link_click" data-link-id="login">Log in</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="btn btn-primary" href="#embedded-app" data-evt="cta_click" data-cta-id="header_jump_to_app">Use the tool</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- ========= Hero ========= -->
+    <section class="hero" id="hero" data-section="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="hero-eyebrow">Logo Tools</p>
+          <h1 class="hero-title">Free Logo Silhouette Generator</h1>
+          <p class="hero-subtitle">
+            Turn any logo image into a clean <strong>black silhouette SVG</strong>.
+            Export <strong>SVG</strong>, <strong>transparent PNG</strong>, or <strong>white-background JPG</strong>.
+          </p>
+
+          <ul class="hero-badges" aria-label="Highlights">
+            <li class="badge">Default preset: <strong>Minimal Logo</strong></li>
+            <li class="badge">100% browser-based (no upload)</li>
+            <li class="badge">Export sizes: 512 / 1024 / 2048</li>
+          </ul>
+
+          <div class="hero-cta-row">
+            <a class="btn btn-primary" href="#embedded-app" data-evt="hero_primary_cta_click" data-cta-id="hero_upload_jump">
+              Upload Image
+            </a>
+            <button class="btn btn-secondary" type="button" data-evt="hero_sample_click" data-sample-id="sample_logo_01">
+              Try a sample logo
+            </button>
+          </div>
+
+          <p class="hero-note" data-section="privacy-note">
+            Processing happens locally in your browser. Your images are never uploaded.
+          </p>
+        </div>
+
+        <div class="hero-media" aria-label="Preview example">
+          <!-- Optional static illustration / before-after image -->
+          <div class="hero-mock">
+            <div class="mock-card">
+              <div class="mock-title">Preview</div>
+              <div class="mock-body">
+                <div class="mock-placeholder" aria-hidden="true"></div>
+                <p class="mock-caption">Upload a logo to see the silhouette here.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Embedded App (Landing Page contains the tool) ========= -->
+    <section class="embedded-app" id="embedded-app" data-section="embedded_app">
+      <div class="container app-inner">
+        <header class="app-header">
+          <h2 class="section-title">LogoSilhouette</h2>
+          <p class="section-subtitle">Convert logo images into clean silhouette SVGs</p>
+        </header>
+
+        <div class="app-grid">
+          <!-- ===== Left Column: Input + Controls ===== -->
+          <div class="app-col app-col-controls">
+            <!-- Upload Card -->
+            <section class="card card-upload" aria-label="Upload" data-evt-scope="upload">
+              <div class="card-header">
+                <h3 class="card-title">Upload</h3>
+                <p class="card-help">PNG, JPG or WebP ¡¤ High contrast works best</p>
+              </div>
+
+              <div class="upload-dropzone" role="button" tabindex="0" aria-label="Upload area">
+                <p class="upload-prompt">Upload your logo image</p>
+                <p class="upload-drag">Drop your image here</p>
+
+                <div class="upload-actions">
+                  <label class="btn btn-primary">
+                    Upload Image
+                    <input class="sr-only" type="file" accept="image/*" />
+                  </label>
+
+                  <button class="btn btn-secondary" type="button" data-evt="hero_sample_click" data-sample-id="sample_logo_01">
+                    Try a sample logo
+                  </button>
+                </div>
+
+                <p class="upload-status" aria-live="polite">
+                  <!-- Example: "Sample logo loaded" -->
+                </p>
+              </div>
+            </section>
+
+            <!-- Presets Card -->
+            <section class="card card-presets" aria-label="Presets" data-evt-scope="presets">
+              <div class="card-header">
+                <h3 class="card-title">Presets</h3>
+              </div>
+
+              <div class="preset-list" role="radiogroup" aria-label="Preset selection">
+                <button class="preset-item is-selected" type="button" role="radio" aria-checked="true"
+                        data-evt="preset_selected" data-preset-id="minimal_logo" data-is-default="true">
+                  <div class="preset-top">
+                    <span class="preset-name">Minimal Logo</span>
+                    <span class="preset-badge">Default</span>
+                  </div>
+                  <div class="preset-desc">Clean, simplified silhouette for logo marks</div>
+                </button>
+
+                <button class="preset-item" type="button" role="radio" aria-checked="false"
+                        data-evt="preset_selected" data-preset-id="clean_silhouette">
+                  <div class="preset-top">
+                    <span class="preset-name">Clean Silhouette</span>
+                  </div>
+                  <div class="preset-desc">Balanced cleanup for most images</div>
+                </button>
+
+                <button class="preset-item" type="button" role="radio" aria-checked="false"
+                        data-evt="preset_selected" data-preset-id="keep_details">
+                  <div class="preset-top">
+                    <span class="preset-name">Keep Details</span>
+                  </div>
+                  <div class="preset-desc">Preserve finer strokes and complex shapes</div>
+                </button>
+              </div>
+            </section>
+
+            <!-- Advanced Settings (Accordion) -->
+            <section class="card card-advanced" aria-label="Advanced Settings" data-evt-scope="advanced">
+              <div class="card-header card-header-row">
+                <h3 class="card-title">Advanced Settings</h3>
+                <button class="btn btn-ghost" type="button" aria-expanded="false"
+                        data-evt="advanced_toggle" data-state="close">
+                  Advanced
+                </button>
+              </div>
+
+              <div class="advanced-panel" hidden>
+                <div class="control">
+                  <label class="control-label" for="threshold">Threshold</label>
+                  <p class="control-help">Control how much of the image turns black</p>
+                  <input id="threshold" class="control-range" type="range" min="0" max="255" value="175"
+                         data-evt="param_changed" data-param="threshold" />
+                </div>
+
+                <div class="control control-inline">
+                  <label class="control-label">
+                    <input type="checkbox" data-evt="param_changed" data-param="invert" />
+                    Invert colors
+                  </label>
+                  <p class="control-help">Useful when the logo is light on a dark background</p>
+                </div>
+
+                <div class="control">
+                  <label class="control-label" for="simplification">Simplification</label>
+                  <p class="control-help">Reduce small details and vector points</p>
+                  <div class="range-hints">
+                    <span class="hint-left">More detail</span>
+                    <span class="hint-right">Simpler shape</span>
+                  </div>
+                  <input id="simplification" class="control-range" type="range" min="0" max="25" value="18"
+                         data-evt="param_changed" data-param="simplification" />
+                </div>
+
+                <div class="control">
+                  <label class="control-label" for="noiseCleanup">Noise Cleanup</label>
+                  <p class="control-help">Removes small specks and fills tiny gaps</p>
+                  <select id="noiseCleanup" class="control-select" data-evt="param_changed" data-param="noise_cleanup">
+                    <option value="off">Off</option>
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+
+                <div class="control control-inline">
+                  <label class="control-label">
+                    <input type="checkbox" checked data-evt="param_changed" data-param="auto_crop" />
+                    Auto crop to logo
+                  </label>
+                  <p class="control-help">Trim empty space around the main mark</p>
+                </div>
+
+                <div class="control">
+                  <button class="btn btn-secondary" type="button" data-evt="reset_to_preset_defaults">
+                    Reset to preset defaults
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Inline Tips / Notices -->
+            <aside class="notice notice-tip" role="note" data-evt-scope="notice">
+              <p><strong>Tip:</strong> Logos with clear contrast produce better silhouettes.</p>
+            </aside>
+
+            <aside class="notice notice-warning" role="status" aria-live="polite" hidden>
+              <!-- Example: "No main logo detected. Auto-crop was skipped." -->
+            </aside>
+          </div>
+
+          <!-- ===== Right Column: Preview + Export ===== -->
+          <div class="app-col app-col-output">
+            <!-- Preview Card -->
+            <section class="card card-preview" aria-label="Preview" data-evt-scope="preview">
+              <div class="card-header">
+                <h3 class="card-title">Preview</h3>
+              </div>
+
+              <div class="tabs" role="tablist" aria-label="Preview tabs">
+                <button class="tab is-active" type="button" role="tab" aria-selected="true"
+                        data-evt="preview_tab_selected" data-tab="original">
+                  Original
+                </button>
+                <button class="tab" type="button" role="tab" aria-selected="false"
+                        data-evt="preview_tab_selected" data-tab="bw">
+                  Black &amp; White
+                </button>
+                <button class="tab" type="button" role="tab" aria-selected="false"
+                        data-evt="preview_tab_selected" data-tab="svg">
+                  SVG Preview
+                </button>
+              </div>
+
+              <div class="preview-stage">
+                <div class="preview-empty" data-state="empty">
+                  <p>Your silhouette will appear here</p>
+                </div>
+
+                <div class="preview-loading" data-state="loading" hidden>
+                  <p class="loading-title">Processing¡­</p>
+                  <p class="loading-subtitle">This usually takes a few seconds</p>
+                </div>
+
+                <div class="preview-ready" data-state="ready" hidden>
+                  <p class="ready-title">Silhouette ready</p>
+
+                  <!-- Replace these containers with real render targets -->
+                  <div class="preview-canvas-wrap" aria-label="Raster previews">
+                    <div class="preview-box" data-preview="original" aria-hidden="true"></div>
+                    <div class="preview-box" data-preview="bw" aria-hidden="true" hidden></div>
+                  </div>
+
+                  <div class="preview-svg-wrap" aria-label="SVG preview" hidden>
+                    <div class="svg-checkerboard">
+                      <div class="svg-mount" id="svg-mount" aria-label="SVG output mount"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Export Card -->
+            <section class="card card-export" aria-label="Export" data-evt-scope="export">
+              <div class="card-header">
+                <h3 class="card-title">Export</h3>
+              </div>
+
+              <div class="export-controls">
+                <div class="control">
+                  <label class="control-label" for="exportFormat">Format</label>
+                  <select id="exportFormat" class="control-select"
+                          data-evt="export_format_selected">
+                    <option value="svg">SVG</option>
+                    <option value="png" selected>PNG (Transparent)</option>
+                    <option value="jpg">JPG (White background)</option>
+                  </select>
+                </div>
+
+                <div class="control">
+                  <label class="control-label" for="exportResolution">Resolution</label>
+                  <select id="exportResolution" class="control-select"
+                          data-evt="export_resolution_selected">
+                    <option value="512">512 ¡Á 512</option>
+                    <option value="1024" selected>1024 ¡Á 1024 (Recommended)</option>
+                    <option value="2048">2048 ¡Á 2048</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="export-actions">
+                <button class="btn btn-primary" type="button" data-evt="export_clicked" data-format="svg">
+                  Download SVG
+                </button>
+                <button class="btn btn-primary" type="button" data-evt="export_clicked" data-format="png">
+                  Download PNG
+                </button>
+                <button class="btn btn-primary" type="button" data-evt="export_clicked" data-format="jpg">
+                  Download JPG
+                </button>
+              </div>
+
+              <p class="export-note">
+                SVG is best for design tools. PNG/JPG exports are generated at 512 / 1024 / 2048.
+              </p>
+            </section>
+
+            <!-- Optional: link back to main product -->
+            <div class="app-upsell">
+              <a class="link link-strong" href="/app" data-evt="outbound_to_main_product" data-to="/app">
+                Need a new logo? Try AI Logo Creator ¡ú
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Divider / SEO Content ========= -->
+    <section class="content-divider" aria-hidden="true"></section>
+
+    <!-- ========= How it works ========= -->
+    <section class="how-it-works" id="how-it-works" data-section="how_it_works">
+      <div class="container">
+        <h2 class="section-title">How LogoSilhouette works</h2>
+        <ol class="steps">
+          <li class="step">
+            <h3 class="step-title">Upload</h3>
+            <p class="step-text">Upload a PNG, JPG, or WebP logo image.</p>
+          </li>
+          <li class="step">
+            <h3 class="step-title">Choose a preset</h3>
+            <p class="step-text">Pick Minimal Logo, Clean Silhouette, or Keep Details.</p>
+          </li>
+          <li class="step">
+            <h3 class="step-title">Download</h3>
+            <p class="step-text">Export SVG, transparent PNG, or white-background JPG.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ========= Features ========= -->
+    <section class="features" id="features" data-section="features">
+      <div class="container">
+        <h2 class="section-title">Key features</h2>
+        <ul class="feature-list">
+          <li class="feature-item">Logo image to silhouette SVG conversion</li>
+          <li class="feature-item">Automatic white shape removal</li>
+          <li class="feature-item">Simplified vector paths for clean logos</li>
+          <li class="feature-item">Auto-crop around the main logo mark</li>
+          <li class="feature-item">Noise cleanup for smooth edges</li>
+          <li class="feature-item">Fully browser-based (no upload required)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========= Use cases ========= -->
+    <section class="use-cases" id="use-cases" data-section="use_cases">
+      <div class="container">
+        <h2 class="section-title">Common use cases</h2>
+        <div class="usecase-grid">
+          <article class="usecase">
+            <h3 class="usecase-title">Logo silhouette SVG</h3>
+            <p class="usecase-text">Create clean silhouette vectors for branding assets.</p>
+          </article>
+          <article class="usecase">
+            <h3 class="usecase-title">Transparent PNG silhouettes</h3>
+            <p class="usecase-text">Perfect for websites, thumbnails, and overlays.</p>
+          </article>
+          <article class="usecase">
+            <h3 class="usecase-title">White-background JPG</h3>
+            <p class="usecase-text">Use in documents, slides, and presentations.</p>
+          </article>
+          <article class="usecase">
+            <h3 class="usecase-title">Laser cutting & engraving</h3>
+            <p class="usecase-text">Prepare simplified shapes for fabrication workflows.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= FAQ ========= -->
+    <section class="faq" id="faq" data-section="faq">
+      <div class="container">
+        <h2 class="section-title">FAQ</h2>
+
+        <div class="faq-list" data-evt-scope="faq">
+          <details class="faq-item" data-evt="faq_item_open" data-faq-id="free">
+            <summary class="faq-q">Is LogoSilhouette free?</summary>
+            <div class="faq-a">
+              <p>Yes. No signup required.</p>
+            </div>
+          </details>
+
+          <details class="faq-item" data-evt="faq_item_open" data-faq-id="upload">
+            <summary class="faq-q">Are my images uploaded?</summary>
+            <div class="faq-a">
+              <p>No. All processing happens locally in your browser.</p>
+            </div>
+          </details>
+
+          <details class="faq-item" data-evt="faq_item_open" data-faq-id="default_preset">
+            <summary class="faq-q">What is the default preset?</summary>
+            <div class="faq-a">
+              <p>Minimal Logo ¡ª optimized for clean logo silhouettes.</p>
+            </div>
+          </details>
+
+          <details class="faq-item" data-evt="faq_item_open" data-faq-id="export_sizes">
+            <summary class="faq-q">What export sizes are supported?</summary>
+            <div class="faq-a">
+              <p>PNG/JPG: 512, 1024 (recommended), 2048.</p>
+            </div>
+          </details>
+
+          <details class="faq-item" data-evt="faq_item_open" data-faq-id="edit_svg">
+            <summary class="faq-q">Can I edit the SVG later?</summary>
+            <div class="faq-a">
+              <p>Yes. Import it into Figma, Illustrator, and other vector tools.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Final CTA ========= -->
+    <section class="final-cta" id="final-cta" data-section="final_cta">
+      <div class="container final-cta-inner">
+        <h2 class="final-cta-title">Create a clean logo silhouette in seconds</h2>
+        <p class="final-cta-subtitle">No upload ¡¤ Free SVG, PNG &amp; JPG exports</p>
+        <div class="final-cta-actions">
+          <a class="btn btn-primary" href="#embedded-app" data-evt="cta_click" data-cta-id="final_upload_jump">
+            Upload Logo Image
+          </a>
+          <button class="btn btn-secondary" type="button" data-evt="hero_sample_click" data-sample-id="sample_logo_01">
+            Try a sample logo
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========= Footer ========= -->
+  <footer class="site-footer" data-section="footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <a class="brand brand-footer" href="/" data-evt="nav_link_click" data-link-id="footer_home">AI Logo Creator</a>
+        <p class="footer-note">
+          Processing happens locally in your browser. Your images are never uploaded.
+        </p>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer">
+        <a class="footer-link" href="/privacy" data-evt="nav_link_click" data-link-id="privacy">Privacy</a>
+        <a class="footer-link" href="/terms" data-evt="nav_link_click" data-link-id="terms">Terms</a>
+        <a class="footer-link" href="/contact" data-evt="nav_link_click" data-link-id="contact">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Optional: FAQ schema placeholder (add JSON-LD later) -->
+  <!--
+  <script type="application/ld+json">
+  { ... }
+  </script>
+  -->
+</body>
+</html>

@@ -1,0 +1,5 @@
+export { HowItWorks } from './HowItWorks'
+export { Features } from './Features'
+export { UseCases } from './UseCases'
+export { FAQ } from './FAQ'
+export { FinalCTA } from './FinalCTA'
