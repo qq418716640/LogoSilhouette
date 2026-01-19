@@ -9,6 +9,16 @@ export type ExportFormat = 'svg' | 'png' | 'jpg'
 export type ExportResolution = 512 | 1024 | 2048
 export type PreviewTab = 'original' | 'bw' | 'result'
 
+// 预设填充色
+export const FILL_COLOR_PRESETS = [
+  '#000000',
+  '#FFFFFF',
+  '#FF383C',
+  '#006FFF',
+  '#B8986C',
+  '#4E4E58',
+] as const
+
 export interface SourceInfo {
   width: number
   height: number
@@ -33,6 +43,7 @@ export interface AppState {
   // 导出配置
   exportFormat: ExportFormat
   exportResolution: ExportResolution
+  fillColor: string
 
   // UI 状态
   isProcessing: boolean
@@ -65,6 +76,7 @@ export interface AppActions {
   // 导出配置
   setExportFormat: (format: ExportFormat) => void
   setExportResolution: (resolution: ExportResolution) => void
+  setFillColor: (color: string) => void
 
   // UI 状态
   setAdvancedOpen: (open: boolean) => void

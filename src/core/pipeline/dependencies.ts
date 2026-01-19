@@ -15,6 +15,7 @@ const PARAM_TO_STEP: Record<keyof ProcessParams, PipelineStep> = {
   cropPaddingPct: 'crop',
   minMainComponentAreaPct: 'crop',
   pathOmit: 'trace',
+  cornerThreshold: 'trace',
 }
 
 /**

@@ -12,6 +12,7 @@ export interface ProcessParams {
   cropPaddingPct: number      // 裁剪留边百分比
   minMainComponentAreaPct: number // 主体最小面积百分比
   pathOmit: number            // SVG 路径简化程度
+  cornerThreshold: number     // 曲线拟合角度阈值 (度)
 }
 
 export interface Preset {

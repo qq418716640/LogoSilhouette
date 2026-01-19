@@ -238,10 +238,16 @@ function pointsToPathD(points: Point[]): string {
  * 描摹二值图像生成 SVG（使用曲线拟合）
  * @param imageData 二值图像数据（黑白）
  * @param pathOmit 路径简化程度（值越大简化越多）
+ * @param cornerThresholdParam 角度阈值（可选，若提供则直接使用）
  * @param useCurve 是否使用曲线拟合（默认 true）
  * @returns SVG 字符串
  */
-export function traceSvg(imageData: ImageData, pathOmit: number, useCurve: boolean = true): string {
+export function traceSvg(
+  imageData: ImageData,
+  pathOmit: number,
+  cornerThresholdParam?: number,
+  useCurve: boolean = true
+): string {
   const { width, height } = imageData
 
   // 提取轮廓
@@ -254,8 +260,8 @@ export function traceSvg(imageData: ImageData, pathOmit: number, useCurve: boole
     points: simplifyPath(c.points, tolerance),
   }))
 
-  // 计算曲线参数
-  const cornerThreshold = getCornerThreshold(pathOmit)
+  // 计算曲线参数（若提供 cornerThresholdParam 则使用，否则从 pathOmit 计算）
+  const cornerThreshold = cornerThresholdParam !== undefined ? cornerThresholdParam : getCornerThreshold(pathOmit)
   const tension = getTension(pathOmit)
 
   // 生成 SVG 路径
@@ -282,7 +288,7 @@ ${paths.join('\n')}
  * 描摹二值图像生成 SVG（折线版本，保留用于对比）
  */
 export function traceSvgPolyline(imageData: ImageData, pathOmit: number): string {
-  return traceSvg(imageData, pathOmit, false)
+  return traceSvg(imageData, pathOmit, undefined, false)
 }
 
 /**

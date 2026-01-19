@@ -23,6 +23,7 @@ const initialState: AppState = {
   // 导出配置
   exportFormat: 'svg',
   exportResolution: 1024,
+  fillColor: '#000000',
 
   // UI 状态
   isProcessing: false,
@@ -129,6 +130,10 @@ export const useAppStore = create<AppStore>()(
       set({ exportResolution: resolution })
     },
 
+    setFillColor: (color) => {
+      set({ fillColor: color })
+    },
+
     // UI 状态
     setAdvancedOpen: (open) => {
       set({ advancedOpen: open })
@@ -155,6 +160,7 @@ export const useIsProcessing = () => useAppStore((s) => s.isProcessing)
 export const useProcessingProgress = () => useAppStore((s) => s.processingProgress)
 export const useExportFormat = () => useAppStore((s) => s.exportFormat)
 export const useExportResolution = () => useAppStore((s) => s.exportResolution)
+export const useFillColor = () => useAppStore((s) => s.fillColor)
 export const useAdvancedOpen = () => useAppStore((s) => s.advancedOpen)
 export const usePreviewTab = () => useAppStore((s) => s.previewTab)
 export const useError = () => useAppStore((s) => s.error)

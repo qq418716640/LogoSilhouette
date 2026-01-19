@@ -89,7 +89,7 @@ export function runPipeline(
   // Step 5: Trace to SVG
   let svgRaw: string
   if (shouldRunStep('trace', startStep) || !currentCache.svgRaw) {
-    svgRaw = traceSvg(cropped, params.pathOmit)
+    svgRaw = traceSvg(cropped, params.pathOmit, params.cornerThreshold)
     currentCache.svgRaw = svgRaw
   } else {
     svgRaw = currentCache.svgRaw

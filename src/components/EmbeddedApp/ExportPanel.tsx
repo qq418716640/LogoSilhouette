@@ -2,10 +2,11 @@
  * 导出面板
  */
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAppStore } from '@/store'
 import { exportAndDownload } from '@/export'
 import type { ExportFormat, ExportResolution } from '@/store/types'
+import { FILL_COLOR_PRESETS } from '@/store/types'
 
 const FORMAT_OPTIONS: { value: ExportFormat; label: string; description: string }[] = [
   { value: 'svg', label: 'SVG', description: 'Vector (scalable)' },
@@ -20,12 +21,15 @@ export function ExportPanel() {
     result,
     exportFormat,
     exportResolution,
+    fillColor,
     setExportFormat,
     setExportResolution,
+    setFillColor,
   } = useAppStore()
 
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
+  const colorInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = async () => {
     if (!result?.svgClean) return
@@ -38,6 +42,7 @@ export function ExportPanel() {
         svgContent: result.svgClean,
         format: exportFormat,
         resolution: exportResolution,
+        fillColor,
       })
     } catch (err) {
       setExportError(err instanceof Error ? err.message : 'Export failed')
@@ -45,6 +50,10 @@ export function ExportPanel() {
     } finally {
       setIsExporting(false)
     }
+  }
+
+  const handleColorPickerClick = () => {
+    colorInputRef.current?.click()
   }
 
   const hasResult = result?.svgClean != null
@@ -102,6 +111,66 @@ export function ExportPanel() {
           </div>
         </div>
       )}
+
+      {/* 填充色选择 */}
+      <div className="space-y-2">
+        <label className="text-xs text-gray-500 uppercase tracking-wide">Fill Color</label>
+        <div className="flex items-center gap-2">
+          {/* 预设色块 */}
+          {FILL_COLOR_PRESETS.map((color) => (
+            <button
+              key={color}
+              onClick={() => setFillColor(color)}
+              className={`
+                w-8 h-8 rounded-md border-2 transition-all
+                ${fillColor === color
+                  ? 'border-blue-500 scale-110'
+                  : 'border-gray-200 hover:border-gray-400'
+                }
+              `}
+              style={{
+                backgroundColor: color,
+                boxShadow: color === '#FFFFFF' ? 'inset 0 0 0 1px #e5e5e5' : undefined,
+              }}
+              title={color}
+            />
+          ))}
+
+          {/* 自定义颜色按钮 */}
+          <button
+            onClick={handleColorPickerClick}
+            className={`
+              w-8 h-8 rounded-md border-2 transition-all relative overflow-hidden
+              ${!FILL_COLOR_PRESETS.includes(fillColor as typeof FILL_COLOR_PRESETS[number])
+                ? 'border-blue-500 scale-110'
+                : 'border-gray-200 hover:border-gray-400'
+              }
+            `}
+            style={{ backgroundColor: fillColor }}
+            title="Custom color"
+          >
+            {/* 彩虹渐变指示这是自定义色选择器 */}
+            <div
+              className="absolute inset-0 opacity-30"
+              style={{
+                background: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
+              }}
+            />
+          </button>
+
+          {/* 隐藏的颜色输入 */}
+          <input
+            ref={colorInputRef}
+            type="color"
+            value={fillColor}
+            onChange={(e) => setFillColor(e.target.value)}
+            className="sr-only"
+          />
+
+          {/* 当前颜色值 */}
+          <span className="text-xs text-gray-500 ml-1 font-mono">{fillColor}</span>
+        </div>
+      </div>
 
       {/* 错误提示 */}
       {exportError && (
