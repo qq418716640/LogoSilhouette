@@ -30,7 +30,23 @@ function distance(p1: Point, p2: Point): number {
 }
 
 /**
+ * 极短向量阈值（像素）
+ * 小于此长度的向量会被跳过，避免噪声影响角度计算
+ */
+const MIN_VECTOR_LENGTH = 1.5
+
+/**
+ * 拐点最小间距（点数）
+ * 相邻拐点如果间隔小于此值，会进行合并
+ */
+const MIN_CORNER_DISTANCE = 3
+
+/**
  * 计算三点形成的角度（中间点的转角，单位：度）
+ * @param p1 前一点
+ * @param p2 中间点
+ * @param p3 后一点
+ * @returns 角度（度），0 = 直线，180 = 完全折返
  */
 function cornerAngle(p1: Point, p2: Point, p3: Point): number {
   const a1 = angle(p1, p2)
@@ -44,23 +60,103 @@ function cornerAngle(p1: Point, p2: Point, p3: Point): number {
 }
 
 /**
+ * 计算三点形成的角度（带向量长度检查）
+ * 如果向量过短，返回 0（视为直线，不作为拐点）
+ */
+function cornerAngleWithLengthCheck(p1: Point, p2: Point, p3: Point): { angle: number; minLen: number } {
+  const len1 = distance(p1, p2)
+  const len2 = distance(p2, p3)
+  const minLen = Math.min(len1, len2)
+
+  // 极短向量过滤：向量太短时不可靠，返回 0
+  if (len1 < MIN_VECTOR_LENGTH || len2 < MIN_VECTOR_LENGTH) {
+    return { angle: 0, minLen }
+  }
+
+  return { angle: cornerAngle(p1, p2, p3), minLen }
+}
+
+/**
+ * 拐点检测配置
+ */
+export interface CornerDetectionOptions {
+  /** 角度阈值（度），超过此值视为拐点，默认 50 */
+  threshold?: number
+  /** 是否使用角度×长度加权，默认 false */
+  useWeightedAngle?: boolean
+  /** 加权模式下的阈值系数，默认 50 */
+  weightedThreshold?: number
+}
+
+/**
  * 检测拐点（角度变化超过阈值的点）
+ * 包含极短向量过滤和防抖策略
  * @param points 点序列
- * @param threshold 角度阈值（度），超过此值视为拐点
+ * @param thresholdOrOptions 角度阈值（度）或配置对象
  * @returns 拐点索引数组（包含首尾点）
  */
-export function detectCorners(points: Point[], threshold: number = 50): number[] {
+export function detectCorners(
+  points: Point[],
+  thresholdOrOptions: number | CornerDetectionOptions = 50
+): number[] {
+  // 解析参数
+  const options: CornerDetectionOptions = typeof thresholdOrOptions === 'number'
+    ? { threshold: thresholdOrOptions }
+    : thresholdOrOptions
+
+  const {
+    threshold = 50,
+    useWeightedAngle = false,
+    weightedThreshold = 50,
+  } = options
+
   if (points.length < 3) {
     return points.map((_, i) => i)
   }
 
-  const corners: number[] = [0] // 起点总是拐点
+  // 第一步：检测所有候选拐点（带角度信息）
+  const candidates: { index: number; angle: number; score: number }[] = []
 
   for (let i = 1; i < points.length - 1; i++) {
-    const angle = cornerAngle(points[i - 1], points[i], points[i + 1])
-    if (angle > threshold) {
-      corners.push(i)
+    const { angle, minLen } = cornerAngleWithLengthCheck(points[i - 1], points[i], points[i + 1])
+
+    if (useWeightedAngle) {
+      // 加权模式：角度 × 最小向量长度
+      // 这样可以过滤掉短距离上的小转角（通常是噪声）
+      const weightedScore = angle * Math.min(minLen, 10) / 10 // 归一化长度影响
+      if (weightedScore > weightedThreshold) {
+        candidates.push({ index: i, angle, score: weightedScore })
+      }
+    } else {
+      // 标准模式：仅基于角度
+      if (angle > threshold) {
+        candidates.push({ index: i, angle, score: angle })
+      }
     }
+  }
+
+  // 第二步：防抖处理 - 合并相邻过近的拐点，保留得分最高者
+  const corners: number[] = [0] // 起点总是拐点
+
+  let i = 0
+  while (i < candidates.length) {
+    // 找到连续相邻的拐点组（间距小于 MIN_CORNER_DISTANCE）
+    let groupEnd = i
+    let maxScoreIdx = i
+
+    while (groupEnd + 1 < candidates.length &&
+           candidates[groupEnd + 1].index - candidates[groupEnd].index < MIN_CORNER_DISTANCE) {
+      groupEnd++
+      // 更新组内得分最高的索引
+      if (candidates[groupEnd].score > candidates[maxScoreIdx].score) {
+        maxScoreIdx = groupEnd
+      }
+    }
+
+    // 只保留组内得分最高的拐点
+    corners.push(candidates[maxScoreIdx].index)
+
+    i = groupEnd + 1
   }
 
   corners.push(points.length - 1) // 终点总是拐点
