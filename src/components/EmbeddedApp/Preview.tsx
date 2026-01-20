@@ -1,6 +1,6 @@
 /**
  * 预览组件
- * 显示处理结果
+ * 显示处理结果，实时反映导出设置
  */
 
 import { useMemo, useState, useCallback } from 'react'
@@ -12,6 +12,85 @@ const TABS: { id: PreviewTab; label: string }[] = [
   { id: 'bw', label: 'B/W' },
   { id: 'result', label: 'Result' },
 ]
+
+/**
+ * 将 SVG 应用填充色
+ */
+function applySvgFillColor(svgContent: string, fillColor: string): string {
+  if (!fillColor || fillColor === '#000000') {
+    return svgContent
+  }
+  return svgContent.replace(/fill="#000000"/g, `fill="${fillColor}"`)
+}
+
+/**
+ * 将 SVG 渲染为指定分辨率的图像
+ */
+async function renderSvgToImage(
+  svgContent: string,
+  resolution: number,
+  format: 'png' | 'jpg',
+  fillColor: string
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // 应用填充色
+    const coloredSvg = applySvgFillColor(svgContent, fillColor)
+
+    // 解析 SVG 尺寸
+    const viewBoxMatch = coloredSvg.match(/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/)
+    if (!viewBoxMatch) {
+      reject(new Error('Invalid SVG: no viewBox'))
+      return
+    }
+
+    const svgWidth = parseFloat(viewBoxMatch[1])
+    const svgHeight = parseFloat(viewBoxMatch[2])
+    const aspectRatio = svgWidth / svgHeight
+
+    // 计算目标尺寸（保持比例，最大边为 resolution）
+    let targetWidth: number
+    let targetHeight: number
+    if (aspectRatio >= 1) {
+      targetWidth = resolution
+      targetHeight = Math.round(resolution / aspectRatio)
+    } else {
+      targetHeight = resolution
+      targetWidth = Math.round(resolution * aspectRatio)
+    }
+
+    // 创建 canvas
+    const canvas = document.createElement('canvas')
+    canvas.width = targetWidth
+    canvas.height = targetHeight
+    const ctx = canvas.getContext('2d')!
+
+    // JPG 格式需要白色背景
+    if (format === 'jpg') {
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fillRect(0, 0, targetWidth, targetHeight)
+    }
+
+    // 创建 Image 对象加载 SVG
+    const img = new Image()
+    const blob = new Blob([coloredSvg], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
+
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight)
+      URL.revokeObjectURL(url)
+
+      const dataUrl = canvas.toDataURL(format === 'jpg' ? 'image/jpeg' : 'image/png', 0.92)
+      resolve(dataUrl)
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Failed to load SVG'))
+    }
+
+    img.src = url
+  })
+}
 
 /**
  * 从 SVG 字符串中提取路径和锚点统计
@@ -45,9 +124,14 @@ export function Preview() {
     isProcessing,
     previewTab,
     setPreviewTab,
+    exportFormat,
+    exportResolution,
+    fillColor,
   } = useAppStore()
 
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null)
+  const [isGeneratingLightbox, setIsGeneratingLightbox] = useState(false)
 
   // 将 ImageData 转换为 Data URL
   const originalDataUrl = useMemo(() => {
@@ -70,18 +154,54 @@ export function Preview() {
     return canvas.toDataURL()
   }, [result?.bwImage])
 
+  // 应用填充色的 SVG
+  const coloredSvg = useMemo(() => {
+    if (!result?.svgClean) return null
+    return applySvgFillColor(result.svgClean, fillColor)
+  }, [result?.svgClean, fillColor])
+
   // 计算 SVG 统计信息
   const svgStats = useMemo(() => {
     if (!result?.svgClean) return null
     return extractSvgStats(result.svgClean)
   }, [result?.svgClean])
 
+  // 是否显示白色背景（JPG 格式）
+  const showWhiteBackground = exportFormat === 'jpg' && previewTab === 'result'
+
   // 点击预览打开大图
-  const handlePreviewClick = useCallback(() => {
-    if (result?.svgClean || originalDataUrl || bwDataUrl) {
+  const handlePreviewClick = useCallback(async () => {
+    if (previewTab === 'result' && result?.svgClean) {
+      // Result 标签：根据导出格式生成预览
+      if (exportFormat === 'svg') {
+        // SVG 格式直接显示
+        setLightboxImage(null)
+        setLightboxOpen(true)
+      } else {
+        // PNG/JPG 格式：生成指定分辨率的图像
+        setIsGeneratingLightbox(true)
+        setLightboxOpen(true)
+        try {
+          const imageUrl = await renderSvgToImage(
+            result.svgClean,
+            exportResolution,
+            exportFormat as 'png' | 'jpg',
+            fillColor
+          )
+          setLightboxImage(imageUrl)
+        } catch (err) {
+          console.error('Failed to generate lightbox image:', err)
+          setLightboxImage(null)
+        } finally {
+          setIsGeneratingLightbox(false)
+        }
+      }
+    } else if (originalDataUrl || bwDataUrl) {
+      // Original/B&W 标签
+      setLightboxImage(null)
       setLightboxOpen(true)
     }
-  }, [result?.svgClean, originalDataUrl, bwDataUrl])
+  }, [previewTab, result?.svgClean, originalDataUrl, bwDataUrl, exportFormat, exportResolution, fillColor])
 
   // 获取当前预览的内容
   const getCurrentContent = useCallback(() => {
@@ -91,11 +211,11 @@ export function Preview() {
       case 'bw':
         return bwDataUrl ? { type: 'image' as const, src: bwDataUrl } : null
       case 'result':
-        return result?.svgClean ? { type: 'svg' as const, content: result.svgClean } : null
+        return coloredSvg ? { type: 'svg' as const, content: coloredSvg } : null
       default:
         return null
     }
-  }, [previewTab, originalDataUrl, bwDataUrl, result?.svgClean])
+  }, [previewTab, originalDataUrl, bwDataUrl, coloredSvg])
 
   // 渲染预览内容
   const renderPreviewContent = () => {
@@ -140,11 +260,11 @@ export function Preview() {
         )
 
       case 'result':
-        return result?.svgClean ? (
+        return coloredSvg ? (
           <div
             className="max-w-full max-h-full cursor-zoom-in flex items-center justify-center"
             style={{ maxHeight: '280px' }}
-            dangerouslySetInnerHTML={{ __html: result.svgClean.replace(
+            dangerouslySetInnerHTML={{ __html: coloredSvg.replace(
               /<svg\s/,
               '<svg style="max-width:100%;max-height:280px;width:auto;height:auto;" '
             ) }}
@@ -184,10 +304,12 @@ export function Preview() {
         className="relative bg-gray-50 border border-gray-200 rounded-xl overflow-hidden"
         onClick={handlePreviewClick}
       >
-        {/* 棋盘格背景（用于显示透明区域） */}
+        {/* 背景：JPG 格式显示白色，其他显示棋盘格（透明指示） */}
         <div
           className="absolute inset-0"
-          style={{
+          style={showWhiteBackground ? {
+            backgroundColor: '#FFFFFF',
+          } : {
             backgroundImage: `
               linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
               linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
@@ -207,7 +329,10 @@ export function Preview() {
         {/* 放大提示 */}
         {(result?.svgClean || originalDataUrl || bwDataUrl) && !isProcessing && (
           <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-60 pointer-events-none">
-            Click to enlarge
+            {previewTab === 'result' && exportFormat !== 'svg'
+              ? `Click to preview ${exportFormat.toUpperCase()} ${exportResolution}px`
+              : 'Click to enlarge'
+            }
           </div>
         )}
       </div>
@@ -223,23 +348,38 @@ export function Preview() {
       {lightboxOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-8"
-          onClick={() => setLightboxOpen(false)}
+          onClick={() => {
+            setLightboxOpen(false)
+            setLightboxImage(null)
+          }}
         >
           {/* 关闭按钮 */}
           <button
-            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
-            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors z-10"
+            onClick={() => {
+              setLightboxOpen(false)
+              setLightboxImage(null)
+            }}
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
+          {/* 格式/分辨率标签 */}
+          {previewTab === 'result' && (
+            <div className="absolute top-4 left-4 bg-black/50 text-white text-sm px-3 py-1.5 rounded z-10">
+              {exportFormat.toUpperCase()}{exportFormat !== 'svg' ? ` · ${exportResolution}px` : ' · Vector'}
+            </div>
+          )}
+
           {/* 大图内容 */}
           <div
             className="max-w-[90vw] max-h-[90vh] bg-white rounded-lg p-4 overflow-auto"
             onClick={(e) => e.stopPropagation()}
-            style={{
+            style={previewTab === 'result' && exportFormat === 'jpg' ? {
+              backgroundColor: '#FFFFFF',
+            } : {
               backgroundImage: `
                 linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
                 linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
@@ -250,27 +390,42 @@ export function Preview() {
               backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
             }}
           >
-            {(() => {
-              const content = getCurrentContent()
-              if (!content) return null
-              if (content.type === 'image') {
+            {isGeneratingLightbox ? (
+              <div className="flex flex-col items-center justify-center min-w-[200px] min-h-[200px]">
+                <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-gray-500">Generating {exportResolution}px preview...</p>
+              </div>
+            ) : lightboxImage ? (
+              // 显示生成的 PNG/JPG 图像
+              <img
+                src={lightboxImage}
+                alt={`${exportFormat.toUpperCase()} Preview`}
+                className="max-w-full max-h-[80vh] object-contain"
+              />
+            ) : (
+              // 显示 SVG 或原始/B&W 图像
+              (() => {
+                const content = getCurrentContent()
+                if (!content) return null
+                if (content.type === 'image') {
+                  return (
+                    <img
+                      src={content.src}
+                      alt="Preview"
+                      className="max-w-full max-h-[80vh] object-contain"
+                    />
+                  )
+                }
                 return (
-                  <img
-                    src={content.src}
-                    alt="Preview"
-                    className="max-w-full max-h-[80vh] object-contain"
+                  <div
+                    dangerouslySetInnerHTML={{ __html: content.content.replace(
+                      /<svg\s/,
+                      '<svg style="max-width:80vw;max-height:80vh;width:auto;height:auto;" '
+                    ) }}
                   />
                 )
-              }
-              return (
-                <div
-                  dangerouslySetInnerHTML={{ __html: content.content.replace(
-                    /<svg\s/,
-                    '<svg style="max-width:80vw;max-height:80vh;width:auto;height:auto;" '
-                  ) }}
-                />
-              )
-            })()}
+              })()
+            )}
           </div>
         </div>
       )}
