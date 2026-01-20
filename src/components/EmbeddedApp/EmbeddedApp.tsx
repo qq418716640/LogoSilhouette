@@ -14,6 +14,39 @@ import { AdvancedSettings } from './AdvancedSettings'
 import { Preview } from './Preview'
 import { ExportPanel } from './ExportPanel'
 
+/**
+ * Invert colors 开关组件
+ * 从高级设置中提取出来，更容易被用户发现
+ */
+function InvertToggle() {
+  const { params, setParams } = useAppStore()
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-2">
+        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+        <label className="text-sm font-medium text-gray-700">Invert colors</label>
+      </div>
+      <button
+        onClick={() => setParams({ invert: !params.invert })}
+        className={`
+          relative w-11 h-6 rounded-full transition-colors
+          ${params.invert ? 'bg-gray-900' : 'bg-gray-300'}
+        `}
+      >
+        <span
+          className={`
+            absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow
+            transition-transform ${params.invert ? 'translate-x-5' : ''}
+          `}
+        />
+      </button>
+    </div>
+  )
+}
+
 export function EmbeddedApp() {
   const {
     sourceImage,
@@ -150,6 +183,9 @@ export function EmbeddedApp() {
 
                 {/* 预设选择 */}
                 <PresetSelector />
+
+                {/* Invert colors - 常用选项，放在外面 */}
+                <InvertToggle />
 
                 {/* 高级设置 */}
                 <AdvancedSettings />

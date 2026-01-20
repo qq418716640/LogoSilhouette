@@ -52,25 +52,6 @@ export function AdvancedSettings() {
             />
           </div>
 
-          {/* Invert */}
-          <div className="flex items-center justify-between">
-            <label className="text-sm text-gray-600">Invert colors</label>
-            <button
-              onClick={() => setParams({ invert: !params.invert })}
-              className={`
-                relative w-11 h-6 rounded-full transition-colors
-                ${params.invert ? 'bg-gray-900' : 'bg-gray-300'}
-              `}
-            >
-              <span
-                className={`
-                  absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full
-                  transition-transform ${params.invert ? 'translate-x-5' : ''}
-                `}
-              />
-            </button>
-          </div>
-
           {/* Noise Cleanup */}
           <div className="space-y-2">
             <label className="text-sm text-gray-600">Noise Cleanup</label>
