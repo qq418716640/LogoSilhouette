@@ -31,8 +31,8 @@ export const PRESETS: Record<PresetId, Preset> = {
       cropPaddingPct: 8,
       minMainComponentAreaPct: 1.2,
       // SVG tracing (imagetracerjs)
-      qtres: 3.5,
-      ltres: 2.0,
+      qtres: 2.5,
+      ltres: 1.5,
       pathomit: 16,
       roundcoords: 2,
       rightangleenhance: true,
