@@ -100,17 +100,27 @@ function extractSvgStats(svgContent: string): { paths: number; anchors: number }
   const pathMatches = svgContent.match(/<path\s/g)
   const paths = pathMatches ? pathMatches.length : 0
 
-  // 计算锚点数量（M, L, C, Q, A, Z 命令）
-  const dMatches = svgContent.match(/\sd="([^"]+)"/g) || []
+  // 提取所有 d 属性内容
+  const dRegex = /\sd="([^"]+)"/g
   let anchors = 0
-  for (const match of dMatches) {
-    // M: 1 点, L: 1 点, C: 3 点（但只算终点）, Q: 2 点, A: 1 点, Z: 0 点
-    const d = match.slice(4, -1) // 提取 d 属性内容
-    const mCount = (d.match(/M\s/gi) || []).length
-    const lCount = (d.match(/L\s/gi) || []).length
-    const cCount = (d.match(/C\s/gi) || []).length
-    const qCount = (d.match(/Q\s/gi) || []).length
-    const aCount = (d.match(/A\s/gi) || []).length
+  let match
+
+  while ((match = dRegex.exec(svgContent)) !== null) {
+    const d = match[1] // 捕获组 1 是 d 属性的内容
+
+    // 统计 SVG 路径命令数量
+    // M: moveto (1 点)
+    // L: lineto (1 点)
+    // C: cubic bezier (1 终点，2 控制点不算)
+    // Q: quadratic bezier (1 终点，1 控制点不算)
+    // A: arc (1 点)
+    // Z: closepath (0 点)
+    const mCount = (d.match(/M\s*-?[\d.]+/gi) || []).length
+    const lCount = (d.match(/L\s*-?[\d.]+/gi) || []).length
+    const cCount = (d.match(/C\s*-?[\d.]+/gi) || []).length
+    const qCount = (d.match(/Q\s*-?[\d.]+/gi) || []).length
+    const aCount = (d.match(/A\s*-?[\d.]+/gi) || []).length
+
     anchors += mCount + lCount + cCount + qCount + aCount
   }
 
