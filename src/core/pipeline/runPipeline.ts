@@ -101,11 +101,17 @@ export function runPipeline(
       cropped = currentCache.cropped
     }
 
-    // Step 5: Trace to SVG (最耗时的步骤，传入 abortCheck)
+    // Step 5: Trace to SVG (使用 imagetracerjs)
     let svgRaw: string
     if (shouldRunStep('trace', startStep) || !currentCache.svgRaw) {
       if (abortCheck()) throw new ProcessingError('Processing timeout', 'TIMEOUT')
-      svgRaw = traceSvg(cropped, params.pathOmit, params.cornerThreshold, true, abortCheck)
+      svgRaw = traceSvg(cropped, {
+        qtres: params.qtres,
+        ltres: params.ltres,
+        pathomit: params.pathomit,
+        roundcoords: params.roundcoords,
+        rightangleenhance: params.rightangleenhance,
+      })
       currentCache.svgRaw = svgRaw
     } else {
       svgRaw = currentCache.svgRaw

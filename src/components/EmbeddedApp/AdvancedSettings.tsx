@@ -74,39 +74,62 @@ export function AdvancedSettings() {
             </div>
           </div>
 
-          {/* Simplification */}
+          {/* Smoothness (qtres) - 核心参数 */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-sm text-gray-600">Simplification</label>
-              <span className="text-sm text-gray-500">{params.pathOmit}</span>
+              <label className="text-sm text-gray-600">Smoothness</label>
+              <span className="text-sm text-gray-500">{params.qtres.toFixed(1)}</span>
             </div>
             <input
               type="range"
-              min={1}
-              max={30}
-              value={params.pathOmit}
-              onChange={(e) => setParams({ pathOmit: Number(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Corner Threshold */}
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <label className="text-sm text-gray-600">Corner Threshold</label>
-              <span className="text-sm text-gray-500">{params.cornerThreshold}°</span>
-            </div>
-            <input
-              type="range"
-              min={20}
-              max={80}
-              value={params.cornerThreshold}
-              onChange={(e) => setParams({ cornerThreshold: Number(e.target.value) })}
+              min={0.5}
+              max={3.0}
+              step={0.1}
+              value={params.qtres}
+              onChange={(e) => setParams({ qtres: Number(e.target.value) })}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
             <p className="text-xs text-gray-400">
-              Higher values preserve more sharp corners
+              Higher = smoother curves, fewer anchor points
             </p>
+          </div>
+
+          {/* Path Filter (pathomit) */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-sm text-gray-600">Path Filter</label>
+              <span className="text-sm text-gray-500">{params.pathomit}</span>
+            </div>
+            <input
+              type="range"
+              min={2}
+              max={30}
+              value={params.pathomit}
+              onChange={(e) => setParams({ pathomit: Number(e.target.value) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <p className="text-xs text-gray-400">
+              Filter out small paths (noise reduction)
+            </p>
+          </div>
+
+          {/* Right Angle Enhance */}
+          <div className="flex items-center justify-between">
+            <label className="text-sm text-gray-600">Enhance right angles</label>
+            <button
+              onClick={() => setParams({ rightangleenhance: !params.rightangleenhance })}
+              className={`
+                relative w-11 h-6 rounded-full transition-colors
+                ${params.rightangleenhance ? 'bg-gray-900' : 'bg-gray-300'}
+              `}
+            >
+              <span
+                className={`
+                  absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full
+                  transition-transform ${params.rightangleenhance ? 'translate-x-5' : ''}
+                `}
+              />
+            </button>
           </div>
 
           {/* Auto Crop */}

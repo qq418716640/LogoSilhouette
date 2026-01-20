@@ -6,16 +6,23 @@ import type { ProcessParams } from '@/presets/types'
  * 用于增量重算：只重跑受影响的步骤
  */
 const PARAM_TO_STEP: Record<keyof ProcessParams, PipelineStep> = {
+  // 二值化参数
   threshold: 'bw',
   invert: 'bw',
+  // 降噪参数
   denoiseLevel: 'denoise',
   removeSpecksMinArea: 'denoise',
   fillHolesMaxArea: 'denoise',
+  // 裁剪参数
   autoCrop: 'crop',
   cropPaddingPct: 'crop',
   minMainComponentAreaPct: 'crop',
-  pathOmit: 'trace',
-  cornerThreshold: 'trace',
+  // SVG tracing 参数 (imagetracerjs)
+  qtres: 'trace',
+  ltres: 'trace',
+  pathomit: 'trace',
+  roundcoords: 'trace',
+  rightangleenhance: 'trace',
 }
 
 /**

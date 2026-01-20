@@ -185,7 +185,9 @@ export class ProcessingError extends Error {
  * 用于实时预览时提升性能
  */
 export interface FastPreviewParams {
-  pathOmit: number
+  qtres: number
+  ltres: number
+  pathomit: number
   denoiseLevel: 'off' | 'low' | 'medium' | 'high'
   removeSpecksMinArea: number
   fillHolesMaxArea: number
@@ -195,10 +197,13 @@ export interface FastPreviewParams {
  * 获取快速预览参数
  * 提高简化程度以加速处理
  */
-export function getFastPreviewParams(originalParams: FastPreviewParams): FastPreviewParams {
+export function getFastPreviewParams(originalParams: FastPreviewParams): Partial<FastPreviewParams> {
   return {
-    // 至少使用 15 的简化程度
-    pathOmit: Math.max(15, originalParams.pathOmit),
+    // 至少使用 2.5 的曲线容差（更平滑，处理更快）
+    qtres: Math.max(2.5, originalParams.qtres),
+    ltres: Math.max(2.0, originalParams.ltres),
+    // 至少使用 12 的路径过滤
+    pathomit: Math.max(12, originalParams.pathomit),
     // 至少使用 medium 降噪
     denoiseLevel: originalParams.denoiseLevel === 'off' || originalParams.denoiseLevel === 'low'
       ? 'medium'
