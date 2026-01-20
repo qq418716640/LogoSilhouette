@@ -35,7 +35,7 @@ export const PRESETS: Record<PresetId, Preset> = {
       ltres: 1.5,
       pathomit: 16,
       roundcoords: 2,
-      rightangleenhance: true,
+      rightangleenhance: false,
     },
   },
   clean_silhouette: {
