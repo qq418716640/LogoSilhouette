@@ -6,6 +6,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { useAppStore } from '@/store'
 import { fileToImageData } from '@/core/steps/resize512'
+import { analyzeImage, type ImageAnalysis } from '@/core/utils/performanceGuard'
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -13,13 +14,38 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 interface ImageUploaderProps {
   onUploadStart?: () => void
   onUploadComplete?: () => void
+  onImageAnalysis?: (analysis: ImageAnalysis) => void
 }
 
-export function ImageUploader({ onUploadStart, onUploadComplete }: ImageUploaderProps) {
+export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis }: ImageUploaderProps) {
   const { setSourceImage, setError, sourceImage } = useAppStore()
   const [isDragging, setIsDragging] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [imageWarning, setImageWarning] = useState<ImageAnalysis | null>(null)
+  const [pendingFile, setPendingFile] = useState<{ imageData: ImageData; file: File } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // 确认处理有警告的图像
+  const confirmProcess = useCallback(() => {
+    if (pendingFile) {
+      setSourceImage(pendingFile.imageData, {
+        width: pendingFile.imageData.width,
+        height: pendingFile.imageData.height,
+        type: pendingFile.file.type,
+        name: pendingFile.file.name,
+        size: pendingFile.file.size,
+      })
+      onUploadComplete?.()
+      setImageWarning(null)
+      setPendingFile(null)
+    }
+  }, [pendingFile, setSourceImage, onUploadComplete])
+
+  // 取消处理
+  const cancelProcess = useCallback(() => {
+    setImageWarning(null)
+    setPendingFile(null)
+  }, [])
 
   const handleFile = useCallback(async (file: File) => {
     // 验证文件类型
@@ -40,6 +66,19 @@ export function ImageUploader({ onUploadStart, onUploadComplete }: ImageUploader
     try {
       const imageData = await fileToImageData(file)
 
+      // 分析图像特征
+      const analysis = analyzeImage(imageData)
+      onImageAnalysis?.(analysis)
+
+      // 如果有警告，显示确认对话框
+      if (analysis.warnings.length > 0) {
+        setPendingFile({ imageData, file })
+        setImageWarning(analysis)
+        setIsLoading(false)
+        return
+      }
+
+      // 没有警告，直接处理
       setSourceImage(imageData, {
         width: imageData.width,
         height: imageData.height,
@@ -55,7 +94,7 @@ export function ImageUploader({ onUploadStart, onUploadComplete }: ImageUploader
     } finally {
       setIsLoading(false)
     }
-  }, [setSourceImage, setError, onUploadStart, onUploadComplete])
+  }, [setSourceImage, setError, onUploadStart, onUploadComplete, onImageAnalysis])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -148,6 +187,67 @@ export function ImageUploader({ onUploadStart, onUploadComplete }: ImageUploader
             PNG, JPG, or WebP (max 10MB)
           </p>
         </>
+      )}
+
+      {/* 图像警告对话框 */}
+      {imageWarning && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          onClick={cancelProcess}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 警告图标 */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Image Quality Notice</h3>
+            </div>
+
+            {/* 警告内容 */}
+            <div className="space-y-3 mb-6">
+              {imageWarning.warnings.map((warning, i) => (
+                <p key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                  <span className="text-yellow-500 mt-0.5">•</span>
+                  {warning}
+                </p>
+              ))}
+
+              {imageWarning.suggestions.length > 0 && (
+                <div className="pt-2 border-t border-gray-100">
+                  <p className="text-xs text-gray-500 font-medium mb-2">Suggestions:</p>
+                  {imageWarning.suggestions.map((suggestion, i) => (
+                    <p key={i} className="text-xs text-gray-500 flex items-start gap-2">
+                      <span className="text-blue-400 mt-0.5">→</span>
+                      {suggestion}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex gap-3">
+              <button
+                onClick={cancelProcess}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmProcess}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Continue Anyway
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -5,6 +5,7 @@
  */
 
 import { pointsToCurvePath, getCornerThreshold, getTension } from '../utils/curvefitting'
+import { checkContourLimit, ProcessingError } from '../utils/performanceGuard'
 
 interface Point {
   x: number
@@ -61,8 +62,11 @@ function getCase(data: Uint8ClampedArray, width: number, height: number, x: numb
 
 /**
  * 使用 Marching Squares 提取轮廓
+ * @param imageData 图像数据
+ * @param abortCheck 可选的中止检查函数
+ * @throws ProcessingError 当轮廓数量超过限制或处理被中止时
  */
-function extractContours(imageData: ImageData): Contour[] {
+function extractContours(imageData: ImageData, abortCheck?: () => boolean): Contour[] {
   const { width, height, data } = imageData
   const visited = new Set<string>()
   const contours: Contour[] = []
@@ -70,6 +74,11 @@ function extractContours(imageData: ImageData): Contour[] {
   // 遍历每个像素点的交叉处
   for (let y = 0; y <= height; y++) {
     for (let x = 0; x <= width; x++) {
+      // 定期检查是否应该中止
+      if (abortCheck && (x % 100 === 0) && abortCheck()) {
+        throw new ProcessingError('Processing was aborted', 'ABORTED')
+      }
+
       const caseValue = getCase(data, width, height, x, y)
 
       // 跳过全黑或全白
@@ -86,6 +95,16 @@ function extractContours(imageData: ImageData): Contour[] {
           points: contour,
           isHole: false, // 稍后判断
         })
+
+        // 检查轮廓数量是否超过限制
+        const check = checkContourLimit(contours.length)
+        if (check.exceeds) {
+          throw new ProcessingError(
+            `Too many contours detected (${check.count}). The image may be too complex. Try increasing "Noise Cleanup" or "Simplification" settings.`,
+            'CONTOUR_LIMIT',
+            { count: check.count, limit: check.limit }
+          )
+        }
       }
     }
   }
@@ -240,18 +259,20 @@ function pointsToPathD(points: Point[]): string {
  * @param pathOmit 路径简化程度（值越大简化越多）
  * @param cornerThresholdParam 角度阈值（可选，若提供则直接使用）
  * @param useCurve 是否使用曲线拟合（默认 true）
+ * @param abortCheck 可选的中止检查函数
  * @returns SVG 字符串
  */
 export function traceSvg(
   imageData: ImageData,
   pathOmit: number,
   cornerThresholdParam?: number,
-  useCurve: boolean = true
+  useCurve: boolean = true,
+  abortCheck?: () => boolean
 ): string {
   const { width, height } = imageData
 
-  // 提取轮廓
-  const contours = extractContours(imageData)
+  // 提取轮廓（可能抛出 ProcessingError）
+  const contours = extractContours(imageData, abortCheck)
 
   // 简化路径
   const tolerance = pathOmit / 10 // 将 pathOmit 转换为容差值

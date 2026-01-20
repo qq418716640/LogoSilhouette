@@ -3,10 +3,11 @@
  * 整合上传、预设、高级设置、预览、导出
  */
 
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { useAppStore } from '@/store'
 import { useProcessor } from '@/workers/useProcessor'
 import { getChangedParams, getEarliestStartStep } from '@/core/pipeline/dependencies'
+import { getFastPreviewParams } from '@/core/utils/performanceGuard'
 import { ImageUploader } from './ImageUploader'
 import { PresetSelector } from './PresetSelector'
 import { AdvancedSettings } from './AdvancedSettings'
@@ -28,17 +29,28 @@ export function EmbeddedApp() {
   const { process } = useProcessor()
   const prevParamsRef = useRef(params)
   const isFirstProcess = useRef(true)
+  const [_isInteracting, setIsInteracting] = useState(false)
+  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const finalProcessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // 处理图像
-  const processImage = useCallback(async (startStep?: string) => {
+  const processImage = useCallback(async (startStep?: string, useFastPreview = false) => {
     if (!sourceImage) return
 
     setProcessing(true)
 
     try {
+      // 快速预览模式：使用优化后的参数
+      const effectiveParams = useFastPreview
+        ? {
+            ...params,
+            ...getFastPreviewParams(params),
+          }
+        : params
+
       const result = await process({
         imageData: sourceImage,
-        params,
+        params: effectiveParams,
         startStep: (startStep as any) || 'resize',
         cache: isFirstProcess.current ? undefined : pipelineCache,
       })
@@ -55,11 +67,11 @@ export function EmbeddedApp() {
   useEffect(() => {
     if (sourceImage) {
       isFirstProcess.current = true
-      processImage('resize')
+      processImage('resize', false)
     }
   }, [sourceImage]) // 只在 sourceImage 变化时触发
 
-  // 参数变化时重新处理（增量）
+  // 参数变化时重新处理（增量 + 快速预览）
   useEffect(() => {
     if (!sourceImage) return
 
@@ -68,11 +80,33 @@ export function EmbeddedApp() {
 
     if (changedParams.length > 0 && !isFirstProcess.current) {
       const startStep = getEarliestStartStep(changedParams)
-      // 使用防抖处理参数变化
-      const timer = setTimeout(() => {
-        processImage(startStep)
-      }, 150)
-      return () => clearTimeout(timer)
+
+      // 标记为正在交互
+      setIsInteracting(true)
+
+      // 清除之前的定时器
+      if (interactionTimerRef.current) {
+        clearTimeout(interactionTimerRef.current)
+      }
+      if (finalProcessTimerRef.current) {
+        clearTimeout(finalProcessTimerRef.current)
+      }
+
+      // 快速预览（使用优化参数）
+      interactionTimerRef.current = setTimeout(() => {
+        processImage(startStep, true)
+      }, 100)
+
+      // 延迟执行最终处理（用户停止调整后）
+      finalProcessTimerRef.current = setTimeout(() => {
+        setIsInteracting(false)
+        processImage(startStep, false)
+      }, 800)
+
+      return () => {
+        if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current)
+        if (finalProcessTimerRef.current) clearTimeout(finalProcessTimerRef.current)
+      }
     }
   }, [params]) // eslint-disable-line react-hooks/exhaustive-deps
 
