@@ -15,12 +15,17 @@ const TABS: { id: PreviewTab; label: string }[] = [
 
 /**
  * 将 SVG 应用填充色
+ * 支持 imagetracerjs 的 rgb(0,0,0) 格式和标准 #000000 格式
  */
 function applySvgFillColor(svgContent: string, fillColor: string): string {
   if (!fillColor || fillColor === '#000000') {
     return svgContent
   }
-  return svgContent.replace(/fill="#000000"/g, `fill="${fillColor}"`)
+  // 替换 imagetracerjs 格式: fill="rgb(0,0,0)"
+  let result = svgContent.replace(/fill="rgb\(0,\s*0,\s*0\)"/g, `fill="${fillColor}"`)
+  // 替换标准格式: fill="#000000"
+  result = result.replace(/fill="#000000"/g, `fill="${fillColor}"`)
+  return result
 }
 
 /**
@@ -270,18 +275,21 @@ export function Preview() {
         )
 
       case 'result':
-        return coloredSvg ? (
-          <div
-            className="max-w-full max-h-full cursor-zoom-in flex items-center justify-center"
-            style={{ maxHeight: '280px' }}
-            dangerouslySetInnerHTML={{ __html: coloredSvg.replace(
-              /<svg\s/,
-              '<svg style="max-width:100%;max-height:280px;width:auto;height:auto;" '
-            ) }}
-          />
-        ) : (
-          <div className="text-gray-400">Process the image first</div>
-        )
+        if (coloredSvg) {
+          // 添加显式的 width 和 height 以确保 SVG 显示
+          const styledSvg = coloredSvg.replace(
+            /<svg\s/,
+            '<svg style="max-width:100%;max-height:280px;width:100%;height:auto;display:block;" '
+          )
+          return (
+            <div
+              className="w-full max-h-full cursor-zoom-in flex items-center justify-center"
+              style={{ maxHeight: '280px', minHeight: '100px' }}
+              dangerouslySetInnerHTML={{ __html: styledSvg }}
+            />
+          )
+        }
+        return <div className="text-gray-400">Process the image first</div>
 
       default:
         return null
@@ -426,12 +434,15 @@ export function Preview() {
                     />
                   )
                 }
+                // SVG 需要显式设置尺寸
+                const styledSvg = content.content.replace(
+                  /<svg\s/,
+                  '<svg style="max-width:80vw;max-height:80vh;width:100%;height:auto;display:block;" '
+                )
                 return (
                   <div
-                    dangerouslySetInnerHTML={{ __html: content.content.replace(
-                      /<svg\s/,
-                      '<svg style="max-width:80vw;max-height:80vh;width:auto;height:auto;" '
-                    ) }}
+                    style={{ minWidth: '200px', minHeight: '200px' }}
+                    dangerouslySetInnerHTML={{ __html: styledSvg }}
                   />
                 )
               })()

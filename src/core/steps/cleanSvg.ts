@@ -29,13 +29,27 @@ export function cleanSvg(svg: string): string {
 }
 
 /**
+ * 黑色填充的正则模式
+ * 支持 #000000, #000, black, rgb(0,0,0) 格式
+ */
+const BLACK_FILL_PATTERN = '#000000|#000|black|rgb\\s*\\(\\s*0\\s*,\\s*0\\s*,\\s*0\\s*\\)'
+
+/**
  * 优化 SVG 路径
- * 合并相同填充色的路径
+ * 合并相同填充色的路径，统一转换为 #000000 格式
  */
 export function optimizeSvgPaths(svg: string): string {
   // 提取所有黑色路径的 d 属性
-  const blackPathPattern = /<path[^>]*fill\s*=\s*["'](#000000|#000|black)["'][^>]*d\s*=\s*["']([^"']+)["'][^>]*\/?>/gi
-  const blackPathPattern2 = /<path[^>]*d\s*=\s*["']([^"']+)["'][^>]*fill\s*=\s*["'](#000000|#000|black)["'][^>]*\/?>/gi
+  // 模式1: fill 在 d 之前
+  const blackPathPattern = new RegExp(
+    `<path[^>]*fill\\s*=\\s*["'](${BLACK_FILL_PATTERN})["'][^>]*d\\s*=\\s*["']([^"']+)["'][^>]*\\/?>`,
+    'gi'
+  )
+  // 模式2: d 在 fill 之前
+  const blackPathPattern2 = new RegExp(
+    `<path[^>]*d\\s*=\\s*["']([^"']+)["'][^>]*fill\\s*=\\s*["'](${BLACK_FILL_PATTERN})["'][^>]*\\/?>`,
+    'gi'
+  )
 
   const dValues: string[] = []
 
@@ -53,12 +67,20 @@ export function optimizeSvgPaths(svg: string): string {
   }
 
   // 移除所有黑色路径
-  let result = svg.replace(/<path[^>]*fill\s*=\s*["'](#000000|#000|black)["'][^>]*\/?>/gi, '')
-  result = result.replace(/<path[^>]*fill\s*=\s*["'](#000000|#000|black)["'][^>]*>[^<]*<\/path>/gi, '')
+  const removePattern = new RegExp(
+    `<path[^>]*fill\\s*=\\s*["'](${BLACK_FILL_PATTERN})["'][^>]*\\/?>`,
+    'gi'
+  )
+  const removePattern2 = new RegExp(
+    `<path[^>]*fill\\s*=\\s*["'](${BLACK_FILL_PATTERN})["'][^>]*>[^<]*<\\/path>`,
+    'gi'
+  )
+  let result = svg.replace(removePattern, '')
+  result = result.replace(removePattern2, '')
 
-  // 在 </svg> 前插入合并后的路径
+  // 在 </svg> 前插入合并后的路径（统一使用 #000000 格式）
   const mergedD = dValues.join(' ')
-  const mergedPath = `<path d="${mergedD}" fill="#000000" fill-rule="evenodd"/>`
+  const mergedPath = `<path fill="#000000" d="${mergedD}" fill-rule="evenodd"/>`
 
   result = result.replace('</svg>', `${mergedPath}\n</svg>`)
 
