@@ -96,12 +96,12 @@ async function renderSvgToImage(
  * 从 SVG 字符串中提取路径和锚点统计
  */
 function extractSvgStats(svgContent: string): { paths: number; anchors: number } {
-  // 计算路径数量
-  const pathMatches = svgContent.match(/<path\s/g)
+  // 计算路径数量 - 匹配 <path 开头
+  const pathMatches = svgContent.match(/<path[\s>]/g)
   const paths = pathMatches ? pathMatches.length : 0
 
-  // 提取所有 d 属性内容
-  const dRegex = /\sd="([^"]+)"/g
+  // 提取所有 d 属性内容（d= 前面可能有空格或在标签开头）
+  const dRegex = /\bd="([^"]+)"/g
   let anchors = 0
   let match
 
