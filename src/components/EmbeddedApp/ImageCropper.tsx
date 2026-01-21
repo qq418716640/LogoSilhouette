@@ -1,12 +1,12 @@
 /**
  * 图片裁剪组件
  * 移动端友好的全屏裁剪弹窗
- * 使用 react-image-crop 支持自由拖动裁剪框
+ * 使用 react-advanced-cropper 支持缩放、平移和自由调整裁剪框
  */
 
 import { useState, useCallback, useRef } from 'react'
-import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop'
-import 'react-image-crop/dist/ReactCrop.css'
+import { Cropper, type CropperRef } from 'react-advanced-cropper'
+import 'react-advanced-cropper/dist/style.css'
 import type { CropArea } from '@/utils/cropImage'
 
 // 比例预设
@@ -48,67 +48,40 @@ export function ImageCropper({
   onSkip,
   onCancel,
 }: ImageCropperProps) {
-  const [crop, setCrop] = useState<Crop>()
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
+  const cropperRef = useRef<CropperRef>(null)
   const [aspect, setAspect] = useState<number | undefined>(undefined)
-  const imgRef = useRef<HTMLImageElement>(null)
+  const [currentCrop, setCurrentCrop] = useState<{ width: number; height: number } | null>(null)
 
-  // 图片加载后设置初始裁剪区域
-  const onImageLoad = useCallback(() => {
-    // 默认选中 90% 区域
-    const initialCrop: Crop = {
-      unit: '%',
-      x: 5,
-      y: 5,
-      width: 90,
-      height: 90,
+  // 裁剪变化时更新显示尺寸
+  const handleChange = useCallback((cropper: CropperRef) => {
+    const coords = cropper.getCoordinates()
+    if (coords) {
+      setCurrentCrop({
+        width: coords.width,
+        height: coords.height,
+      })
     }
-    setCrop(initialCrop)
   }, [])
 
-  // 切换比例时重置裁剪区域
+  // 切换比例
   const handleAspectChange = useCallback((newAspect: number | undefined) => {
     setAspect(newAspect)
-    if (imgRef.current) {
-      const { width, height } = imgRef.current
-      if (newAspect) {
-        // 计算居中的裁剪区域
-        let cropWidth = width * 0.8
-        let cropHeight = cropWidth / newAspect
-        if (cropHeight > height * 0.8) {
-          cropHeight = height * 0.8
-          cropWidth = cropHeight * newAspect
-        }
-        setCrop({
-          unit: 'px',
-          x: (width - cropWidth) / 2,
-          y: (height - cropHeight) / 2,
-          width: cropWidth,
-          height: cropHeight,
-        })
-      } else {
-        // Free 模式：选中 90%
-        setCrop({
-          unit: '%',
-          x: 5,
-          y: 5,
-          width: 90,
-          height: 90,
+  }, [])
+
+  // 确认裁剪
+  const handleConfirm = useCallback(() => {
+    if (cropperRef.current) {
+      const coords = cropperRef.current.getCoordinates()
+      if (coords && coords.width > 0 && coords.height > 0) {
+        onCropComplete({
+          x: Math.round(coords.left),
+          y: Math.round(coords.top),
+          width: Math.round(coords.width),
+          height: Math.round(coords.height),
         })
       }
     }
-  }, [])
-
-  const handleConfirm = useCallback(() => {
-    if (completedCrop && completedCrop.width > 0 && completedCrop.height > 0) {
-      onCropComplete({
-        x: Math.round(completedCrop.x),
-        y: Math.round(completedCrop.y),
-        width: Math.round(completedCrop.width),
-        height: Math.round(completedCrop.height),
-      })
-    }
-  }, [completedCrop, onCropComplete])
+  }, [onCropComplete])
 
   return (
     <div
@@ -130,30 +103,24 @@ export function ImageCropper({
       </div>
 
       {/* 裁剪区域 */}
-      <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-black p-4">
-        <ReactCrop
-          crop={crop}
-          onChange={(c) => setCrop(c)}
-          onComplete={(c) => setCompletedCrop(c)}
-          aspect={aspect}
-          className="max-h-full"
-        >
-          <img
-            ref={imgRef}
-            src={imageSrc}
-            alt="Crop"
-            onLoad={onImageLoad}
-            className="max-h-[calc(100vh-220px)] max-w-full object-contain"
-            style={{ display: 'block' }}
-          />
-        </ReactCrop>
+      <div className="flex-1 relative overflow-hidden">
+        <Cropper
+          ref={cropperRef}
+          src={imageSrc}
+          onChange={handleChange}
+          stencilProps={{
+            aspectRatio: aspect,
+            grid: true,
+          }}
+          className="h-full"
+        />
 
         {/* 尺寸信息 */}
-        {completedCrop && completedCrop.width > 0 && completedCrop.height > 0 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
-            {Math.round(completedCrop.width)} × {Math.round(completedCrop.height)} px
+        {currentCrop && currentCrop.width > 0 && currentCrop.height > 0 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">
+            {Math.round(currentCrop.width)} × {Math.round(currentCrop.height)} px
             <span className="text-white/60 ml-2">
-              ({getSimplifiedRatio(completedCrop.width, completedCrop.height)})
+              ({getSimplifiedRatio(currentCrop.width, currentCrop.height)})
             </span>
           </div>
         )}
