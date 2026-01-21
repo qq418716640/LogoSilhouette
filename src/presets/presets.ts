@@ -77,19 +77,19 @@ export const PRESETS: Record<PresetId, Preset> = {
       threshold: 145,
       invert: false,
       // 降噪
-      denoiseLevel: 'low',
-      removeSpecksMinArea: 40,
-      fillHolesMaxArea: 60,
+      denoiseLevel: 'off',
+      removeSpecksMinArea: 20,
+      fillHolesMaxArea: 30,
       // 裁剪
       autoCrop: false,
       cropPaddingPct: 4,
       minMainComponentAreaPct: 0.8,
       // SVG tracing (imagetracerjs)
-      qtres: 1.0,
-      ltres: 0.8,
-      pathomit: 4,
+      qtres: 0.1,
+      ltres: 0.1,
+      pathomit: 0,
       roundcoords: 2,
-      rightangleenhance: true,
+      rightangleenhance: false,
     },
   },
 }
