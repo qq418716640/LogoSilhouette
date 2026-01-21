@@ -7,6 +7,31 @@ import { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
 import type { CropArea } from '@/utils/cropImage'
 
+// 比例预设
+const ASPECT_PRESETS = [
+  { label: 'Free', value: undefined },
+  { label: '1:1', value: 1 },
+  { label: '4:3', value: 4 / 3 },
+  { label: '3:4', value: 3 / 4 },
+  { label: '16:9', value: 16 / 9 },
+] as const
+
+/**
+ * 计算最简比例
+ */
+function getSimplifiedRatio(width: number, height: number): string {
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+  const divisor = gcd(Math.round(width), Math.round(height))
+  const w = Math.round(width / divisor)
+  const h = Math.round(height / divisor)
+
+  // 如果比例数字太大，显示小数比例
+  if (w > 20 || h > 20) {
+    return (width / height).toFixed(2) + ':1'
+  }
+  return `${w}:${h}`
+}
+
 interface ImageCropperProps {
   imageSrc: string
   onCropComplete: (croppedAreaPixels: CropArea) => void
@@ -22,6 +47,7 @@ export function ImageCropper({
 }: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
+  const [aspect, setAspect] = useState<number | undefined>(undefined)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null)
 
   const handleCropComplete = useCallback(
@@ -36,6 +62,12 @@ export function ImageCropper({
       onCropComplete(croppedAreaPixels)
     }
   }, [croppedAreaPixels, onCropComplete])
+
+  // 切换比例时重置 crop 位置
+  const handleAspectChange = useCallback((newAspect: number | undefined) => {
+    setAspect(newAspect)
+    setCrop({ x: 0, y: 0 })
+  }, [])
 
   return (
     <div
@@ -62,7 +94,7 @@ export function ImageCropper({
           image={imageSrc}
           crop={crop}
           zoom={zoom}
-          aspect={undefined} // 自由裁剪，不固定比例
+          aspect={aspect}
           onCropChange={setCrop}
           onCropComplete={handleCropComplete}
           onZoomChange={setZoom}
@@ -78,10 +110,39 @@ export function ImageCropper({
             },
           }}
         />
+
+        {/* 尺寸信息 */}
+        {croppedAreaPixels && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
+            {Math.round(croppedAreaPixels.width)} × {Math.round(croppedAreaPixels.height)} px
+            <span className="text-white/60 ml-2">
+              ({getSimplifiedRatio(croppedAreaPixels.width, croppedAreaPixels.height)})
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 底部控制栏 */}
       <div className="px-4 py-4 bg-black/80 space-y-4">
+        {/* 比例预设 */}
+        <div className="flex items-center justify-center gap-2">
+          {ASPECT_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              onClick={() => handleAspectChange(preset.value)}
+              className={`
+                px-3 py-1.5 text-xs rounded-lg transition-colors
+                ${aspect === preset.value
+                  ? 'bg-white text-black'
+                  : 'bg-white/10 text-white/80 hover:bg-white/20'
+                }
+              `}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+
         {/* 缩放滑块 */}
         <div className="flex items-center gap-3">
           <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
