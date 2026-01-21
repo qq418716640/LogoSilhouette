@@ -94,7 +94,7 @@ export const PRESETS: Record<PresetId, Preset> = {
   },
 }
 
-export const DEFAULT_PRESET_ID: PresetId = 'minimal_logo'
+export const DEFAULT_PRESET_ID: PresetId = 'clean_silhouette'
 
 export function getPreset(id: PresetId): Preset {
   return PRESETS[id]
