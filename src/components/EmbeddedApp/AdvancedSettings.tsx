@@ -85,19 +85,19 @@ export function AdvancedSettings() {
           <div className="space-y-2">
             <div className="flex justify-between">
               <label className="text-sm text-gray-600">Smoothness</label>
-              <span className="text-sm text-gray-500">{params.qtres.toFixed(2)}</span>
+              <span className="text-sm text-gray-500">{params.qtres.toFixed(1)}</span>
             </div>
             <input
               type="range"
-              min={0.01}
-              max={3.0}
-              step={0.01}
+              min={0.5}
+              max={5.0}
+              step={0.1}
               value={params.qtres}
               onChange={(e) => setParams({ qtres: Number(e.target.value) })}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
             <p className="text-xs text-gray-400">
-              Lower = more anchors (0.01 = pixel-perfect)
+              Higher = smoother curves, fewer anchor points
             </p>
           </div>
 
@@ -203,13 +203,13 @@ export function AdvancedSettings() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <label className="text-sm text-gray-600">Line Tolerance (ltres)</label>
-                  <span className="text-sm text-gray-500">{params.ltres.toFixed(2)}</span>
+                  <span className="text-sm text-gray-500">{params.ltres.toFixed(1)}</span>
                 </div>
                 <input
                   type="range"
-                  min={0.01}
-                  max={3.0}
-                  step={0.01}
+                  min={0.5}
+                  max={5.0}
+                  step={0.1}
                   value={params.ltres}
                   onChange={(e) => setParams({ ltres: Number(e.target.value) })}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"

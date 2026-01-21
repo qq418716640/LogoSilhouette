@@ -79,6 +79,10 @@ export function traceSvg(
   // 调用 imagetracerjs
   let svg = ImageTracer.imagedataToSVG(imageData, options)
 
+  // Debug: 统计原始路径数
+  const originalPathCount = (svg.match(/<path[\s>]/g) || []).length
+  console.log('[traceSvg] pathomit:', options.pathomit, 'original paths:', originalPathCount)
+
   // 后处理：移除白色路径，只保留黑色
   svg = removeWhitePaths(svg)
 

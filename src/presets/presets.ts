@@ -20,7 +20,7 @@ export const PRESETS: Record<PresetId, Preset> = {
     description: 'Ultra-clean silhouette, fewer nodes, ideal for logo marks.',
     params: {
       // 工作分辨率
-      maxSize: 512,
+      maxSize: 1024,
       // 二值化
       threshold: 175,
       invert: false,
@@ -37,7 +37,7 @@ export const PRESETS: Record<PresetId, Preset> = {
       ltres: 1.5,
       pathomit: 16,
       roundcoords: 2,
-      rightangleenhance: false,
+      rightangleenhance: true,
     },
   },
   clean_silhouette: {
@@ -46,7 +46,7 @@ export const PRESETS: Record<PresetId, Preset> = {
     description: 'Balanced cleanup for most images.',
     params: {
       // 工作分辨率
-      maxSize: 512,
+      maxSize: 1024,
       // 二值化
       threshold: 160,
       invert: false,
@@ -85,8 +85,8 @@ export const PRESETS: Record<PresetId, Preset> = {
       cropPaddingPct: 4,
       minMainComponentAreaPct: 0.8,
       // SVG tracing (imagetracerjs)
-      qtres: 0.1,
-      ltres: 0.1,
+      qtres: 0.5,
+      ltres: 0.5,
       pathomit: 0,
       roundcoords: 2,
       rightangleenhance: false,
