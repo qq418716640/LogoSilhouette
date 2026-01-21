@@ -99,34 +99,33 @@ async function renderSvgToImage(
 
 /**
  * 从 SVG 字符串中提取路径和锚点统计
+ * 注意：由于 optimizeSvgPaths 会将所有黑色路径合并为一个 <path>，
+ * 所以这里用 M 命令数量来统计子路径数（即原始路径数）
  */
 function extractSvgStats(svgContent: string): { paths: number; anchors: number } {
-  // 计算路径数量 - 匹配 <path 开头
-  const pathMatches = svgContent.match(/<path[\s>]/g)
-  const paths = pathMatches ? pathMatches.length : 0
-
-  // 提取所有 d 属性内容（d= 前面可能有空格或在标签开头）
+  // 提取所有 d 属性内容
   const dRegex = /\bd="([^"]+)"/g
+  let paths = 0
   let anchors = 0
   let match
 
   while ((match = dRegex.exec(svgContent)) !== null) {
-    const d = match[1] // 捕获组 1 是 d 属性的内容
+    const d = match[1]
 
-    // 统计 SVG 路径命令数量
-    // M: moveto (1 点)
-    // L: lineto (1 点)
-    // C: cubic bezier (1 终点，2 控制点不算)
-    // Q: quadratic bezier (1 终点，1 控制点不算)
-    // A: arc (1 点)
-    // Z: closepath (0 点)
-    const mCount = (d.match(/M\s*-?[\d.]+/gi) || []).length
+    // M 命令数量 = 子路径数量（每个子路径以 M 开头）
+    const mMatches = d.match(/M\s*-?[\d.]+/gi) || []
+    paths += mMatches.length
+
+    // 统计锚点：每个绘图命令产生一个锚点
+    // M: moveto, L: lineto, C: cubic bezier, Q: quadratic bezier, A: arc
+    // Z: closepath (不产生新锚点)
     const lCount = (d.match(/L\s*-?[\d.]+/gi) || []).length
     const cCount = (d.match(/C\s*-?[\d.]+/gi) || []).length
     const qCount = (d.match(/Q\s*-?[\d.]+/gi) || []).length
     const aCount = (d.match(/A\s*-?[\d.]+/gi) || []).length
 
-    anchors += mCount + lCount + cCount + qCount + aCount
+    // 锚点 = M + L + C + Q + A（每个命令的终点都是一个锚点）
+    anchors += mMatches.length + lCount + cCount + qCount + aCount
   }
 
   return { paths, anchors }
