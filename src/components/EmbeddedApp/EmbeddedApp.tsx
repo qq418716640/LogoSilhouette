@@ -67,10 +67,13 @@ export function EmbeddedApp() {
   const finalProcessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // 处理图像
-  const processImage = useCallback(async (startStep?: string, useFastPreview = false) => {
+  const processImage = useCallback(async (startStep?: string, useFastPreview = false, showLoading = true) => {
     if (!sourceImage) return
 
-    setProcessing(true)
+    // 只在需要时显示 loading（首次处理或最终处理）
+    if (showLoading) {
+      setProcessing(true)
+    }
 
     try {
       // 快速预览模式：使用优化后的参数
@@ -125,15 +128,15 @@ export function EmbeddedApp() {
         clearTimeout(finalProcessTimerRef.current)
       }
 
-      // 快速预览（使用优化参数）
+      // 快速预览（使用优化参数，不显示 loading）
       interactionTimerRef.current = setTimeout(() => {
-        processImage(startStep, true)
+        processImage(startStep, true, false)
       }, 100)
 
-      // 延迟执行最终处理（用户停止调整后）
+      // 延迟执行最终处理（用户停止调整后，不显示 loading）
       finalProcessTimerRef.current = setTimeout(() => {
         setIsInteracting(false)
-        processImage(startStep, false)
+        processImage(startStep, false, false)
       }, 800)
 
       return () => {
