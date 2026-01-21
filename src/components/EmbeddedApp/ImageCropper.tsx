@@ -1,10 +1,12 @@
 /**
  * 图片裁剪组件
  * 移动端友好的全屏裁剪弹窗
+ * 使用 react-image-crop 支持自由拖动裁剪框
  */
 
-import { useState, useCallback } from 'react'
-import Cropper from 'react-easy-crop'
+import { useState, useCallback, useRef } from 'react'
+import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop'
+import 'react-image-crop/dist/ReactCrop.css'
 import type { CropArea } from '@/utils/cropImage'
 
 // 比例预设
@@ -20,6 +22,7 @@ const ASPECT_PRESETS = [
  * 计算最简比例
  */
 function getSimplifiedRatio(width: number, height: number): string {
+  if (width === 0 || height === 0) return '0:0'
   const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
   const divisor = gcd(Math.round(width), Math.round(height))
   const w = Math.round(width / divisor)
@@ -45,29 +48,67 @@ export function ImageCropper({
   onSkip,
   onCancel,
 }: ImageCropperProps) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
+  const [crop, setCrop] = useState<Crop>()
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
   const [aspect, setAspect] = useState<number | undefined>(undefined)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
 
-  const handleCropComplete = useCallback(
-    (_croppedArea: CropArea, croppedAreaPixels: CropArea) => {
-      setCroppedAreaPixels(croppedAreaPixels)
-    },
-    []
-  )
-
-  const handleConfirm = useCallback(() => {
-    if (croppedAreaPixels) {
-      onCropComplete(croppedAreaPixels)
+  // 图片加载后设置初始裁剪区域
+  const onImageLoad = useCallback(() => {
+    // 默认选中 90% 区域
+    const initialCrop: Crop = {
+      unit: '%',
+      x: 5,
+      y: 5,
+      width: 90,
+      height: 90,
     }
-  }, [croppedAreaPixels, onCropComplete])
+    setCrop(initialCrop)
+  }, [])
 
-  // 切换比例时重置 crop 位置
+  // 切换比例时重置裁剪区域
   const handleAspectChange = useCallback((newAspect: number | undefined) => {
     setAspect(newAspect)
-    setCrop({ x: 0, y: 0 })
+    if (imgRef.current) {
+      const { width, height } = imgRef.current
+      if (newAspect) {
+        // 计算居中的裁剪区域
+        let cropWidth = width * 0.8
+        let cropHeight = cropWidth / newAspect
+        if (cropHeight > height * 0.8) {
+          cropHeight = height * 0.8
+          cropWidth = cropHeight * newAspect
+        }
+        setCrop({
+          unit: 'px',
+          x: (width - cropWidth) / 2,
+          y: (height - cropHeight) / 2,
+          width: cropWidth,
+          height: cropHeight,
+        })
+      } else {
+        // Free 模式：选中 90%
+        setCrop({
+          unit: '%',
+          x: 5,
+          y: 5,
+          width: 90,
+          height: 90,
+        })
+      }
+    }
   }, [])
+
+  const handleConfirm = useCallback(() => {
+    if (completedCrop && completedCrop.width > 0 && completedCrop.height > 0) {
+      onCropComplete({
+        x: Math.round(completedCrop.x),
+        y: Math.round(completedCrop.y),
+        width: Math.round(completedCrop.width),
+        height: Math.round(completedCrop.height),
+      })
+    }
+  }, [completedCrop, onCropComplete])
 
   return (
     <div
@@ -85,38 +126,34 @@ export function ImageCropper({
           </svg>
         </button>
         <h2 className="text-white font-medium">Crop Image</h2>
-        <div className="w-10" /> {/* 占位保持标题居中 */}
+        <div className="w-10" />
       </div>
 
       {/* 裁剪区域 */}
-      <div className="flex-1 relative">
-        <Cropper
-          image={imageSrc}
+      <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-black p-4">
+        <ReactCrop
           crop={crop}
-          zoom={zoom}
+          onChange={(c) => setCrop(c)}
+          onComplete={(c) => setCompletedCrop(c)}
           aspect={aspect}
-          onCropChange={setCrop}
-          onCropComplete={handleCropComplete}
-          onZoomChange={setZoom}
-          minZoom={0.5}
-          maxZoom={3}
-          showGrid={true}
-          style={{
-            containerStyle: {
-              background: '#000',
-            },
-            cropAreaStyle: {
-              border: '2px solid #fff',
-            },
-          }}
-        />
+          className="max-h-full"
+        >
+          <img
+            ref={imgRef}
+            src={imageSrc}
+            alt="Crop"
+            onLoad={onImageLoad}
+            className="max-h-[calc(100vh-220px)] max-w-full object-contain"
+            style={{ display: 'block' }}
+          />
+        </ReactCrop>
 
         {/* 尺寸信息 */}
-        {croppedAreaPixels && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
-            {Math.round(croppedAreaPixels.width)} × {Math.round(croppedAreaPixels.height)} px
+        {completedCrop && completedCrop.width > 0 && completedCrop.height > 0 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
+            {Math.round(completedCrop.width)} × {Math.round(completedCrop.height)} px
             <span className="text-white/60 ml-2">
-              ({getSimplifiedRatio(croppedAreaPixels.width, croppedAreaPixels.height)})
+              ({getSimplifiedRatio(completedCrop.width, completedCrop.height)})
             </span>
           </div>
         )}
@@ -141,31 +178,6 @@ export function ImageCropper({
               {preset.label}
             </button>
           ))}
-        </div>
-
-        {/* 缩放滑块 */}
-        <div className="flex items-center gap-3">
-          <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-          </svg>
-          <input
-            type="range"
-            min={0.5}
-            max={3}
-            step={0.01}
-            value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
-            className="flex-1 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:w-5
-              [&::-webkit-slider-thumb]:h-5
-              [&::-webkit-slider-thumb]:bg-white
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:shadow-lg"
-          />
-          <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-          </svg>
         </div>
 
         {/* 操作按钮 */}
