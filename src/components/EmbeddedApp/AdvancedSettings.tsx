@@ -43,22 +43,6 @@ export function AdvancedSettings() {
       {/* 展开内容 */}
       {advancedOpen && (
         <div className="p-4 space-y-5 bg-white">
-          {/* Threshold */}
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <label className="text-sm text-gray-600">Threshold</label>
-              <span className="text-sm text-gray-500">{params.threshold}</span>
-            </div>
-            <input
-              type="range"
-              min={50}
-              max={240}
-              value={params.threshold}
-              onChange={(e) => setParams({ threshold: Number(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
           {/* Noise Cleanup */}
           <div className="space-y-2">
             <label className="text-sm text-gray-600">Noise Cleanup</label>
