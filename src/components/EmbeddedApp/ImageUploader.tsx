@@ -174,8 +174,10 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
   }, [])
 
   const handleClick = useCallback(() => {
+    // 裁剪弹窗显示时不触发上传
+    if (showCropper) return
     inputRef.current?.click()
-  }, [])
+  }, [showCropper])
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

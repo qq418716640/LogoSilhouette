@@ -38,7 +38,10 @@ export function ImageCropper({
   }, [croppedAreaPixels, onCropComplete])
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div
+      className="fixed inset-0 z-50 bg-black flex flex-col"
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* 头部 */}
       <div className="flex items-center justify-between px-4 py-3 bg-black/80">
         <button
