@@ -1,12 +1,14 @@
 /**
  * 图像上传组件
- * 支持拖拽和点击上传
+ * 支持拖拽和点击上传，带裁剪功能
  */
 
 import { useCallback, useRef, useState } from 'react'
 import { useAppStore } from '@/store'
 import { fileToImageData } from '@/core/steps/resize512'
 import { analyzeImage, type ImageAnalysis } from '@/core/utils/performanceGuard'
+import { ImageCropper } from './ImageCropper'
+import { fileToDataUrl, getCroppedImageData, type CropArea } from '@/utils/cropImage'
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -24,6 +26,11 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
   const [imageWarning, setImageWarning] = useState<ImageAnalysis | null>(null)
   const [pendingFile, setPendingFile] = useState<{ imageData: ImageData; file: File } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // 裁剪相关状态
+  const [showCropper, setShowCropper] = useState(false)
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
+  const [originalFile, setOriginalFile] = useState<File | null>(null)
 
   // 确认处理有警告的图像
   const confirmProcess = useCallback(() => {
@@ -47,6 +54,78 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
     setPendingFile(null)
   }, [])
 
+  // 处理裁剪后的图像
+  const processImageData = useCallback(async (imageData: ImageData, file: File) => {
+    // 分析图像特征
+    const analysis = analyzeImage(imageData)
+    onImageAnalysis?.(analysis)
+
+    // 如果有警告，显示确认对话框
+    if (analysis.warnings.length > 0) {
+      setPendingFile({ imageData, file })
+      setImageWarning(analysis)
+      return
+    }
+
+    // 没有警告，直接处理
+    setSourceImage(imageData, {
+      width: imageData.width,
+      height: imageData.height,
+      type: file.type,
+      name: file.name,
+      size: file.size,
+    })
+
+    onUploadComplete?.()
+  }, [setSourceImage, onImageAnalysis, onUploadComplete])
+
+  // 裁剪完成回调
+  const handleCropComplete = useCallback(async (croppedAreaPixels: CropArea) => {
+    if (!cropImageSrc || !originalFile) return
+
+    setShowCropper(false)
+    setIsLoading(true)
+
+    try {
+      const croppedImageData = await getCroppedImageData(cropImageSrc, croppedAreaPixels)
+      await processImageData(croppedImageData, originalFile)
+    } catch (err) {
+      setError('Failed to crop image. Please try again.')
+      console.error('Crop error:', err)
+    } finally {
+      setIsLoading(false)
+      setCropImageSrc(null)
+      setOriginalFile(null)
+    }
+  }, [cropImageSrc, originalFile, processImageData, setError])
+
+  // 跳过裁剪，使用原图
+  const handleSkipCrop = useCallback(async () => {
+    if (!originalFile) return
+
+    setShowCropper(false)
+    setIsLoading(true)
+
+    try {
+      const imageData = await fileToImageData(originalFile)
+      await processImageData(imageData, originalFile)
+    } catch (err) {
+      setError('Failed to load image. Please try another file.')
+      console.error('Image load error:', err)
+    } finally {
+      setIsLoading(false)
+      setCropImageSrc(null)
+      setOriginalFile(null)
+    }
+  }, [originalFile, processImageData, setError])
+
+  // 取消裁剪
+  const handleCancelCrop = useCallback(() => {
+    setShowCropper(false)
+    setCropImageSrc(null)
+    setOriginalFile(null)
+  }, [])
+
   const handleFile = useCallback(async (file: File) => {
     // 验证文件类型
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -60,41 +139,19 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
       return
     }
 
-    setIsLoading(true)
     onUploadStart?.()
 
     try {
-      const imageData = await fileToImageData(file)
-
-      // 分析图像特征
-      const analysis = analyzeImage(imageData)
-      onImageAnalysis?.(analysis)
-
-      // 如果有警告，显示确认对话框
-      if (analysis.warnings.length > 0) {
-        setPendingFile({ imageData, file })
-        setImageWarning(analysis)
-        setIsLoading(false)
-        return
-      }
-
-      // 没有警告，直接处理
-      setSourceImage(imageData, {
-        width: imageData.width,
-        height: imageData.height,
-        type: file.type,
-        name: file.name,
-        size: file.size,
-      })
-
-      onUploadComplete?.()
+      // 转换为 Data URL 用于裁剪预览
+      const dataUrl = await fileToDataUrl(file)
+      setCropImageSrc(dataUrl)
+      setOriginalFile(file)
+      setShowCropper(true)
     } catch (err) {
       setError('Failed to load image. Please try another file.')
       console.error('Image load error:', err)
-    } finally {
-      setIsLoading(false)
     }
-  }, [setSourceImage, setError, onUploadStart, onUploadComplete, onImageAnalysis])
+  }, [setError, onUploadStart])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -248,6 +305,16 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
             </div>
           </div>
         </div>
+      )}
+
+      {/* 图片裁剪弹窗 */}
+      {showCropper && cropImageSrc && (
+        <ImageCropper
+          imageSrc={cropImageSrc}
+          onCropComplete={handleCropComplete}
+          onSkip={handleSkipCrop}
+          onCancel={handleCancelCrop}
+        />
       )}
     </div>
   )
