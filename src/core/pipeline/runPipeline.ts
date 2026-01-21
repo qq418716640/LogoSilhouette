@@ -6,7 +6,7 @@
 import type { ProcessParams } from '@/presets/types'
 import type { PipelineStep, PipelineResult, PipelineCache } from './types'
 import { shouldRunStep } from './dependencies'
-import { resize512 } from '../steps/resize512'
+import { resizeToMax } from '../steps/resize512'
 import { thresholdBW } from '../steps/thresholdBW'
 import { denoiseLite } from '../steps/denoiseLite'
 import { cropToMain } from '../steps/cropMain'
@@ -54,7 +54,7 @@ export function runPipeline(
     // Step 1: Resize
     let resized: ImageData
     if (shouldRunStep('resize', startStep) || !currentCache.resized) {
-      resized = resize512(input)
+      resized = resizeToMax(input, params.maxSize)
       currentCache.resized = resized
     } else {
       resized = currentCache.resized

@@ -2,7 +2,12 @@ export type DenoiseLevel = 'off' | 'low' | 'medium' | 'high'
 
 export type PresetId = 'minimal_logo' | 'clean_silhouette' | 'keep_details'
 
+export type WorkingResolution = 512 | 1024 | 2048
+
 export interface ProcessParams {
+  // 工作分辨率
+  maxSize: WorkingResolution  // 工作分辨率（最长边）
+
   // 二值化参数
   threshold: number           // 黑白阈值 (0-255)
   invert: boolean             // 是否反相

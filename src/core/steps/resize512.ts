@@ -1,20 +1,27 @@
 /**
- * 图像缩放：最长边缩放至 512px（等比）
+ * 图像缩放：最长边缩放至指定尺寸（等比）
  * 内部统一工作尺寸
  */
 
-const MAX_SIZE = 512
+import type { WorkingResolution } from '@/presets/types'
 
-export function resize512(imageData: ImageData): ImageData {
+const DEFAULT_MAX_SIZE = 512
+
+/**
+ * 缩放图像到指定的最大尺寸
+ * @param imageData 输入图像
+ * @param maxSize 最长边的目标尺寸 (512/1024/2048)
+ */
+export function resizeToMax(imageData: ImageData, maxSize: WorkingResolution = DEFAULT_MAX_SIZE): ImageData {
   const { width, height } = imageData
 
   // 如果图像已经足够小，直接返回
-  if (width <= MAX_SIZE && height <= MAX_SIZE) {
+  if (width <= maxSize && height <= maxSize) {
     return imageData
   }
 
   // 计算缩放比例
-  const scale = MAX_SIZE / Math.max(width, height)
+  const scale = maxSize / Math.max(width, height)
   const newWidth = Math.round(width * scale)
   const newHeight = Math.round(height * scale)
 
@@ -32,6 +39,13 @@ export function resize512(imageData: ImageData): ImageData {
   targetCtx.drawImage(sourceCanvas, 0, 0, newWidth, newHeight)
 
   return targetCtx.getImageData(0, 0, newWidth, newHeight)
+}
+
+/**
+ * @deprecated 使用 resizeToMax(imageData, maxSize) 代替
+ */
+export function resize512(imageData: ImageData): ImageData {
+  return resizeToMax(imageData, 512)
 }
 
 /**

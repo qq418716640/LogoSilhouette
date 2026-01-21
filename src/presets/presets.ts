@@ -19,6 +19,8 @@ export const PRESETS: Record<PresetId, Preset> = {
     name: 'Minimal Logo',
     description: 'Ultra-clean silhouette, fewer nodes, ideal for logo marks.',
     params: {
+      // 工作分辨率
+      maxSize: 512,
       // 二值化
       threshold: 175,
       invert: false,
@@ -43,6 +45,8 @@ export const PRESETS: Record<PresetId, Preset> = {
     name: 'Clean Silhouette',
     description: 'Balanced cleanup for most images.',
     params: {
+      // 工作分辨率
+      maxSize: 512,
       // 二值化
       threshold: 160,
       invert: false,
@@ -67,6 +71,8 @@ export const PRESETS: Record<PresetId, Preset> = {
     name: 'Keep Details',
     description: 'Preserve finer strokes and complex contours.',
     params: {
+      // 工作分辨率
+      maxSize: 1024,
       // 二值化
       threshold: 145,
       invert: false,

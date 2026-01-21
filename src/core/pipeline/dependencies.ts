@@ -6,6 +6,8 @@ import type { ProcessParams } from '@/presets/types'
  * 用于增量重算：只重跑受影响的步骤
  */
 const PARAM_TO_STEP: Record<keyof ProcessParams, PipelineStep> = {
+  // 工作分辨率
+  maxSize: 'resize',
   // 二值化参数
   threshold: 'bw',
   invert: 'bw',
