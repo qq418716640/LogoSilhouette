@@ -99,27 +99,11 @@ export function ImageCropper({
           </svg>
         </button>
         <h2 className="text-white font-medium">Crop Image</h2>
-        {/* PC端：按钮放右上角 */}
-        <div className="hidden md:flex items-center gap-2">
-          <button
-            onClick={onSkip}
-            className="px-4 py-1.5 text-sm text-white/80 hover:text-white border border-white/30 hover:border-white/50 rounded-lg transition-colors"
-          >
-            Skip
-          </button>
-          <button
-            onClick={handleConfirm}
-            className="px-4 py-1.5 text-sm bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            Confirm
-          </button>
-        </div>
-        {/* 移动端占位 */}
-        <div className="w-10 md:hidden" />
+        <div className="w-10" />
       </div>
 
       {/* 裁剪区域 */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden px-4 py-4 md:px-12 md:py-8">
         <Cropper
           ref={cropperRef}
           src={imageSrc}
@@ -133,7 +117,7 @@ export function ImageCropper({
 
         {/* 尺寸信息 */}
         {currentCrop && currentCrop.width > 0 && currentCrop.height > 0 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">
+          <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">
             {Math.round(currentCrop.width)} × {Math.round(currentCrop.height)} px
             <span className="text-white/60 ml-2">
               ({getSimplifiedRatio(currentCrop.width, currentCrop.height)})
@@ -143,7 +127,7 @@ export function ImageCropper({
       </div>
 
       {/* 底部控制栏 */}
-      <div className="px-4 py-4 bg-black/80 space-y-4">
+      <div className="px-4 py-4 md:px-12 md:py-6 bg-black/80 space-y-4">
         {/* 比例预设 */}
         <div className="flex items-center justify-center gap-2">
           {ASPECT_PRESETS.map((preset) => (
@@ -163,8 +147,8 @@ export function ImageCropper({
           ))}
         </div>
 
-        {/* 移动端：操作按钮 */}
-        <div className="flex gap-3 md:hidden">
+        {/* 操作按钮 */}
+        <div className="flex gap-3 max-w-md mx-auto">
           <button
             onClick={onSkip}
             className="flex-1 py-3 text-white/80 hover:text-white border border-white/30 hover:border-white/50 rounded-xl transition-colors"
