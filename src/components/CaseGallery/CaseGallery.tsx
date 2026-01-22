@@ -65,33 +65,41 @@ export function CaseGallery() {
           Click any example to try it yourself
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {CASES.map((caseData) => (
             <div
               key={caseData.id}
-              className="group relative bg-gray-100 rounded-xl overflow-hidden aspect-square cursor-pointer"
+              className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => handleMakeSame(caseData)}
             >
               {/* 效果展示图 */}
-              <img
-                src={caseData.previewImage}
-                alt={`Case ${caseData.id}`}
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-              />
+              <div className="relative bg-gray-100">
+                <img
+                  src={caseData.previewImage}
+                  alt={caseData.title}
+                  className="w-full h-auto transition-transform group-hover:scale-[1.02]"
+                />
 
-              {/* 悬浮遮罩 */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                <span className="text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  {loadingId === caseData.id ? 'Loading...' : 'Try it'}
-                </span>
+                {/* 悬浮遮罩 */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                  <span className="text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity text-lg">
+                    {loadingId === caseData.id ? 'Loading...' : 'Try it'}
+                  </span>
+                </div>
+
+                {/* 加载状态 */}
+                {loadingId === caseData.id && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
               </div>
 
-              {/* 加载状态 */}
-              {loadingId === caseData.id && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                </div>
-              )}
+              {/* 标题和描述 */}
+              <div className="p-4">
+                <h3 className="font-medium text-gray-900">{caseData.title}</h3>
+                <p className="text-sm text-gray-500 mt-1">{caseData.description}</p>
+              </div>
             </div>
           ))}
         </div>

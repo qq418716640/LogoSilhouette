@@ -10,6 +10,10 @@ export interface CaseData {
   sourceImage: string
   /** 效果展示图路径 */
   previewImage: string
+  /** 案例标题 */
+  title: string
+  /** 案例描述 */
+  description: string
   /** 预设 ID */
   presetId?: PresetId
   /** 需要覆盖的参数 */
@@ -23,12 +27,16 @@ export const CASES: CaseData[] = [
     id: 'case_1',
     sourceImage: '/cases/case_1.png',
     previewImage: '/cases/case_1_BA_43403D.png',
+    title: 'Feather Quill',
+    description: 'Gradient to solid color silhouette',
     fillColor: '#43403D',
   },
   {
     id: 'case_2',
     sourceImage: '/cases/case_2.png',
     previewImage: '/cases/case_2_BA_Minimal logo_Threshold 140_Invert colors.png',
+    title: 'Geometric Logo',
+    description: 'Line art with inverted colors',
     presetId: 'minimal_logo',
     params: {
       threshold: 140,
@@ -39,6 +47,8 @@ export const CASES: CaseData[] = [
     id: 'case_3',
     sourceImage: '/cases/case_3.png',
     previewImage: '/cases/case_3_BA_Smoothness 3.0.png',
+    title: 'Angry Panda',
+    description: 'Mascot with smooth curves',
     params: {
       qtres: 3.0,
     },
@@ -47,6 +57,8 @@ export const CASES: CaseData[] = [
     id: 'case_4',
     sourceImage: '/cases/case_4.png',
     previewImage: '/cases/case_4_BA_Keep details_Smoothness 3.0.png',
+    title: 'Black House Crest',
+    description: 'Detailed emblem preserving fine lines',
     presetId: 'keep_details',
     params: {
       qtres: 3.0,
