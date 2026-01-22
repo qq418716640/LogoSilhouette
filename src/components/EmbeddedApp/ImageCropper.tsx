@@ -99,7 +99,23 @@ export function ImageCropper({
           </svg>
         </button>
         <h2 className="text-white font-medium">Crop Image</h2>
-        <div className="w-10" />
+        {/* PC端：按钮放右上角 */}
+        <div className="hidden md:flex items-center gap-2">
+          <button
+            onClick={onSkip}
+            className="px-4 py-1.5 text-sm text-white/80 hover:text-white border border-white/30 hover:border-white/50 rounded-lg transition-colors"
+          >
+            Skip
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-1.5 text-sm bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+        {/* 移动端占位 */}
+        <div className="w-10 md:hidden" />
       </div>
 
       {/* 裁剪区域 */}
@@ -147,8 +163,8 @@ export function ImageCropper({
           ))}
         </div>
 
-        {/* 操作按钮 */}
-        <div className="flex gap-3">
+        {/* 移动端：操作按钮 */}
+        <div className="flex gap-3 md:hidden">
           <button
             onClick={onSkip}
             className="flex-1 py-3 text-white/80 hover:text-white border border-white/30 hover:border-white/50 rounded-xl transition-colors"
