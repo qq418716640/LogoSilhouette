@@ -6,39 +6,54 @@
 import { useCallback } from 'react'
 import { useAppStore } from '@/store'
 import { urlToImageData } from '@/core/steps/resize512'
-
-// 示例图片 URL（实际项目中应该放在 assets 目录）
-const SAMPLE_IMAGE_URL = 'data:image/svg+xml,' + encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200">
-  <circle cx="50" cy="50" r="45" fill="#333"/>
-  <circle cx="35" cy="40" r="8" fill="white"/>
-  <circle cx="65" cy="40" r="8" fill="white"/>
-  <path d="M 30 65 Q 50 80 70 65" stroke="white" stroke-width="5" fill="none" stroke-linecap="round"/>
-</svg>
-`)
+import { CASES } from '@/data/cases'
+import { DEFAULT_PRESET_ID } from '@/presets/presets'
 
 export function Hero() {
-  const { setSourceImage, setError, setProcessing, sourceImage } = useAppStore()
+  const { setSourceImage, setError, setProcessing, sourceImage, setActivePreset, setParams, setFillColor } = useAppStore()
 
   const handleTrySample = useCallback(async () => {
     setProcessing(true)
 
     try {
-      const imageData = await urlToImageData(SAMPLE_IMAGE_URL)
+      // 随机选择一个案例
+      const randomCase = CASES[Math.floor(Math.random() * CASES.length)]
+
+      // 加载案例图片
+      const imageData = await urlToImageData(randomCase.sourceImage)
+
+      // 设置预设
+      setActivePreset(randomCase.presetId || DEFAULT_PRESET_ID)
+
+      // 覆盖参数
+      if (randomCase.params) {
+        setParams(randomCase.params)
+      }
+
+      // 设置填充色
+      setFillColor(randomCase.fillColor || '#000000')
+
+      // 设置源图片
       setSourceImage(imageData, {
         width: imageData.width,
         height: imageData.height,
-        type: 'image/svg+xml',
-        name: 'sample-logo.svg',
+        type: 'image/png',
+        name: randomCase.sourceImage.split('/').pop() || 'sample.png',
         size: 0,
       })
+
+      // 滚动到工作区
+      const embeddedApp = document.getElementById('embedded-app')
+      if (embeddedApp) {
+        embeddedApp.scrollIntoView({ behavior: 'smooth' })
+      }
     } catch (err) {
       setError('Failed to load sample image')
       console.error(err)
     } finally {
       setProcessing(false)
     }
-  }, [setSourceImage, setError, setProcessing])
+  }, [setSourceImage, setError, setProcessing, setActivePreset, setParams, setFillColor])
 
   const scrollToApp = useCallback(() => {
     const appElement = document.getElementById('embedded-app')
@@ -67,7 +82,7 @@ export function Hero() {
             <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            Default preset: Minimal Logo
+            Default preset: Clean Silhouette
           </span>
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-700">
             <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">

@@ -67,7 +67,7 @@ export function CaseGallery() {
           {CASES.map((caseData) => (
             <div
               key={caseData.id}
-              className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              className="group bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-gray-300 transition-colors"
               onClick={() => handleMakeSame(caseData)}
             >
               {/* 效果展示图 */}
@@ -95,7 +95,7 @@ export function CaseGallery() {
 
               {/* 标题和描述 */}
               <div className="p-4">
-                <h3 className="font-medium text-gray-900">{caseData.title}</h3>
+                <h3 className="font-semibold text-gray-900">{caseData.title}</h3>
                 <p className="text-sm text-gray-500 mt-1">{caseData.description}</p>
               </div>
             </div>

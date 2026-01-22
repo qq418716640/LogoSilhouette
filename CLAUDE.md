@@ -27,7 +27,7 @@ LogoSilhouette is a browser-based Logo Silhouette Generator that converts raster
 - `/src/core/pipeline/` - Image processing orchestration with caching
 - `/src/core/steps/` - Individual processing steps (resize, threshold, denoise, crop, trace, clean)
 - `/src/store/` - Zustand global state
-- `/src/presets/` - Three processing presets (Minimal Logo, Clean Silhouette, Keep Details)
+- `/src/presets/` - Three processing presets (Clean Silhouette [default], Minimal Logo, Keep Details)
 - `/src/workers/` - Web Worker for async processing
 - `/src/export/` - SVG/PNG/JPG export utilities
 
