@@ -5,6 +5,7 @@
 
 import { Hero } from '@/components/Hero'
 import { EmbeddedApp } from '@/components/EmbeddedApp'
+import { CaseGallery } from '@/components/CaseGallery'
 import { HowItWorks, Features, UseCases, FAQ, FinalCTA } from '@/components/Landing'
 import { useError } from '@/store'
 
@@ -27,6 +28,9 @@ function App() {
       <section id="embedded-app" className="py-8 px-4 bg-gray-50">
         <EmbeddedApp />
       </section>
+
+      {/* 案例展示 */}
+      <CaseGallery />
 
       {/* SEO 内容区域 */}
       <HowItWorks />
