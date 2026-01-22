@@ -19,12 +19,22 @@ export function CaseGallery() {
       // 1. 加载源图片
       const imageData = await urlToImageData(caseData.sourceImage)
 
-      // 2. 设置预设（如果有）
+      // 2. 设置预设（如果有）- 这会重置 params 为预设默认值
       if (caseData.presetId) {
         setActivePreset(caseData.presetId)
       }
 
-      // 3. 设置源图片
+      // 3. 立即覆盖参数（在 setSourceImage 之前，确保处理时使用正确的参数）
+      if (caseData.params) {
+        setParams(caseData.params)
+      }
+
+      // 4. 设置填充色（如果有）
+      if (caseData.fillColor) {
+        setFillColor(caseData.fillColor)
+      }
+
+      // 5. 设置源图片（这会触发处理流程，此时参数已经设置好）
       setSourceImage(imageData, {
         width: imageData.width,
         height: imageData.height,
@@ -32,19 +42,6 @@ export function CaseGallery() {
         name: caseData.sourceImage.split('/').pop() || 'case.png',
         size: 0,
       })
-
-      // 4. 覆盖参数（如果有）
-      if (caseData.params) {
-        // 稍微延迟以确保预设已应用
-        setTimeout(() => {
-          setParams(caseData.params!)
-        }, 50)
-      }
-
-      // 5. 设置填充色（如果有）
-      if (caseData.fillColor) {
-        setFillColor(caseData.fillColor)
-      }
 
       // 滚动到工作区
       window.scrollTo({ top: 0, behavior: 'smooth' })
