@@ -22,7 +22,7 @@ export const CASES: CaseData[] = [
   {
     id: 'case_1',
     sourceImage: '/cases/case_1.png',
-    previewImage: '/cases/case_1_BA_#43403D.png',
+    previewImage: '/cases/case_1_BA_43403D.png',
     fillColor: '#43403D',
   },
   {
