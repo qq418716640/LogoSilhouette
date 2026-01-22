@@ -194,59 +194,61 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
   }
 
   return (
-    <div
-      className={`
-        relative border-2 border-dashed rounded-xl p-8
-        flex flex-col items-center justify-center
-        cursor-pointer transition-all duration-200
-        min-h-[200px]
-        ${isDragging
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-        }
-        ${isLoading ? 'pointer-events-none opacity-60' : ''}
-      `}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onClick={handleClick}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPTED_TYPES.join(',')}
-        className="hidden"
-        onChange={handleInputChange}
-      />
+    <div>
+      {/* 上传区域 */}
+      <div
+        className={`
+          relative border-2 border-dashed rounded-xl p-8
+          flex flex-col items-center justify-center
+          cursor-pointer transition-all duration-200
+          min-h-[200px]
+          ${isDragging
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+          }
+          ${isLoading ? 'pointer-events-none opacity-60' : ''}
+        `}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={handleClick}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept={ACCEPTED_TYPES.join(',')}
+          className="hidden"
+          onChange={handleInputChange}
+        />
 
-      {isLoading ? (
-        <>
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-gray-600">Loading image...</p>
-        </>
-      ) : (
-        <>
-          <svg
-            className="w-12 h-12 text-gray-400 mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-          <p className="text-gray-700 font-medium mb-1">
-            Drop your logo here or click to upload
-          </p>
-          <p className="text-gray-500 text-sm">
-            PNG, JPG, or WebP (max 10MB)
-          </p>
-        </>
-      )}
+        {isLoading ? (
+          <>
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-gray-600">Loading image...</p>
+          </>
+        ) : (
+          <>
+            <svg
+              className="w-12 h-12 text-gray-400 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <p className="text-gray-700 font-medium mb-1">
+              Drop your logo here or click to upload
+            </p>
+            <p className="text-gray-500 text-sm">
+              PNG, JPG, or WebP (max 10MB)
+            </p>
+          </>
+        )}
 
       {/* 图像警告对话框 */}
       {imageWarning && (
@@ -309,15 +311,57 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
         </div>
       )}
 
-      {/* 图片裁剪弹窗 */}
-      {showCropper && cropImageSrc && (
-        <ImageCropper
-          imageSrc={cropImageSrc}
-          onCropComplete={handleCropComplete}
-          onSkip={handleSkipCrop}
-          onCancel={handleCancelCrop}
-        />
-      )}
+        {/* 图片裁剪弹窗 */}
+        {showCropper && cropImageSrc && (
+          <ImageCropper
+            imageSrc={cropImageSrc}
+            onCropComplete={handleCropComplete}
+            onSkip={handleSkipCrop}
+            onCancel={handleCancelCrop}
+          />
+        )}
+      </div>
+
+      {/* 提示区域 */}
+      <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+        <p className="text-sm text-gray-600 text-center mb-4">
+          <span className="font-medium">Tip:</span> For the best results, use a clear logo on a clean background.
+        </p>
+        <div className="flex items-center justify-center gap-6">
+          {/* 正确示例 */}
+          <div className="flex flex-col items-center">
+            <div className="relative">
+              <img
+                src="/tips/good.png"
+                alt="Good example"
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <span className="text-xs text-gray-500 mt-2">Good</span>
+          </div>
+          {/* 错误示例 */}
+          <div className="flex flex-col items-center">
+            <div className="relative">
+              <img
+                src="/tips/bad.png"
+                alt="Bad example"
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            </div>
+            <span className="text-xs text-gray-500 mt-2">Bad</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
