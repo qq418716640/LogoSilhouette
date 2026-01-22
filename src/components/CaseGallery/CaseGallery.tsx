@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react'
 import { useAppStore } from '@/store'
 import { CASES, type CaseData } from '@/data/cases'
 import { urlToImageData } from '@/core/steps/resize512'
+import { DEFAULT_PRESET_ID } from '@/presets/presets'
 
 export function CaseGallery() {
   const { setSourceImage, setParams, setActivePreset, setFillColor } = useAppStore()
@@ -19,10 +20,9 @@ export function CaseGallery() {
       // 1. 加载源图片
       const imageData = await urlToImageData(caseData.sourceImage)
 
-      // 2. 设置预设（如果有）- 这会重置 params 为预设默认值
-      if (caseData.presetId) {
-        setActivePreset(caseData.presetId)
-      }
+      // 2. 设置预设 - 这会重置 params 为预设默认值
+      // 始终调用以确保参数重置，没有指定预设则使用默认预设
+      setActivePreset(caseData.presetId || DEFAULT_PRESET_ID)
 
       // 3. 立即覆盖参数（在 setSourceImage 之前，确保处理时使用正确的参数）
       if (caseData.params) {
