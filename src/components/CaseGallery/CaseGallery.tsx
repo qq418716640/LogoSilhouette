@@ -29,10 +29,8 @@ export function CaseGallery() {
         setParams(caseData.params)
       }
 
-      // 4. 设置填充色（如果有）
-      if (caseData.fillColor) {
-        setFillColor(caseData.fillColor)
-      }
+      // 4. 重置填充色为默认值，然后设置案例指定的颜色（如果有）
+      setFillColor(caseData.fillColor || '#000000')
 
       // 5. 设置源图片（这会触发处理流程，此时参数已经设置好）
       setSourceImage(imageData, {
@@ -44,7 +42,10 @@ export function CaseGallery() {
       })
 
       // 滚动到工作区
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      const embeddedApp = document.getElementById('embedded-app')
+      if (embeddedApp) {
+        embeddedApp.scrollIntoView({ behavior: 'smooth' })
+      }
     } catch (err) {
       console.error('Failed to load case:', err)
     } finally {
@@ -62,7 +63,7 @@ export function CaseGallery() {
           Click any example to try it yourself
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {CASES.map((caseData) => (
             <div
               key={caseData.id}

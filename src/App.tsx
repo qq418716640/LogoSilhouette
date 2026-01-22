@@ -24,13 +24,13 @@ function App() {
       {/* Hero 区域 */}
       <Hero />
 
+      {/* 案例展示 */}
+      <CaseGallery />
+
       {/* 嵌入式应用 */}
       <section id="embedded-app" className="py-8 px-4 bg-gray-50">
         <EmbeddedApp />
       </section>
-
-      {/* 案例展示 */}
-      <CaseGallery />
 
       {/* SEO 内容区域 */}
       <HowItWorks />
