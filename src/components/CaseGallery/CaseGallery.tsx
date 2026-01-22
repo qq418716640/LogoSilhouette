@@ -55,7 +55,7 @@ export function CaseGallery() {
 
   return (
     <section className="py-12 md:py-16">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
           Example Gallery
         </h2>
