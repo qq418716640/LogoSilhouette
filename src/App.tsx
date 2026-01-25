@@ -3,6 +3,7 @@
  * Landing Page + Embedded App
  */
 
+import { Header } from '@/components/Header'
 import { Hero } from '@/components/Hero'
 import { EmbeddedApp } from '@/components/EmbeddedApp'
 import { CaseGallery } from '@/components/CaseGallery'
@@ -20,6 +21,9 @@ function App() {
           {error}
         </div>
       )}
+
+      {/* Header */}
+      <Header />
 
       {/* Hero 区域 */}
       <Hero />
