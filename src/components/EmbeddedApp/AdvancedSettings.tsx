@@ -27,11 +27,11 @@ export function AdvancedSettings() {
       {/* 折叠头部 */}
       <button
         onClick={() => setAdvancedOpen(!advancedOpen)}
-        className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
+        className="w-full px-3 py-2.5 md:px-4 md:py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
       >
-        <span className="text-sm font-medium text-gray-700">Advanced Settings</span>
+        <span className="text-xs md:text-sm font-medium text-gray-700">Advanced Settings</span>
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform ${advancedOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 md:w-5 md:h-5 text-gray-500 transition-transform ${advancedOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -42,17 +42,17 @@ export function AdvancedSettings() {
 
       {/* 展开内容 */}
       {advancedOpen && (
-        <div className="p-4 space-y-5 bg-white">
+        <div className="p-3 md:p-4 space-y-3 md:space-y-5 bg-white">
           {/* Noise Cleanup */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-600">Noise Cleanup</label>
-            <div className="flex gap-2">
+          <div className="space-y-1.5 md:space-y-2">
+            <label className="text-xs md:text-sm text-gray-600">Noise Cleanup</label>
+            <div className="flex gap-1.5 md:gap-2">
               {DENOISE_OPTIONS.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setParams({ denoiseLevel: option.value })}
                   className={`
-                    px-3 py-1.5 text-xs rounded-md transition-colors
+                    px-2.5 py-1.5 md:px-3 text-xs rounded-md transition-colors
                     ${params.denoiseLevel === option.value
                       ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -66,10 +66,10 @@ export function AdvancedSettings() {
           </div>
 
           {/* Smoothness (qtres) - 核心参数 */}
-          <div className="space-y-2">
+          <div className="space-y-1.5 md:space-y-2">
             <div className="flex justify-between">
-              <label className="text-sm text-gray-600">Smoothness</label>
-              <span className="text-sm text-gray-500">{params.qtres.toFixed(1)}</span>
+              <label className="text-xs md:text-sm text-gray-600">Smoothness</label>
+              <span className="text-xs md:text-sm text-gray-500">{params.qtres.toFixed(1)}</span>
             </div>
             <input
               type="range"
@@ -86,10 +86,10 @@ export function AdvancedSettings() {
           </div>
 
           {/* Path Filter (pathomit) */}
-          <div className="space-y-2">
+          <div className="space-y-1.5 md:space-y-2">
             <div className="flex justify-between">
-              <label className="text-sm text-gray-600">Path Filter</label>
-              <span className="text-sm text-gray-500">{params.pathomit}</span>
+              <label className="text-xs md:text-sm text-gray-600">Path Filter</label>
+              <span className="text-xs md:text-sm text-gray-500">{params.pathomit}</span>
             </div>
             <input
               type="range"
@@ -106,18 +106,18 @@ export function AdvancedSettings() {
 
           {/* Right Angle Enhance */}
           <div className="flex items-center justify-between">
-            <label className="text-sm text-gray-600">Enhance right angles</label>
+            <label className="text-xs md:text-sm text-gray-600">Enhance right angles</label>
             <button
               onClick={() => setParams({ rightangleenhance: !params.rightangleenhance })}
               className={`
-                relative w-11 h-6 rounded-full transition-colors
+                relative w-10 h-5 md:w-11 md:h-6 rounded-full transition-colors flex-shrink-0
                 ${params.rightangleenhance ? 'bg-gray-900' : 'bg-gray-300'}
               `}
             >
               <span
                 className={`
-                  absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full
-                  transition-transform ${params.rightangleenhance ? 'translate-x-5' : ''}
+                  absolute top-0.5 left-0.5 w-4 h-4 md:w-5 md:h-5 bg-white rounded-full
+                  transition-transform ${params.rightangleenhance ? 'translate-x-[1.125rem] md:translate-x-5' : ''}
                 `}
               />
             </button>
@@ -125,18 +125,18 @@ export function AdvancedSettings() {
 
           {/* Auto Crop */}
           <div className="flex items-center justify-between">
-            <label className="text-sm text-gray-600">Auto crop to logo</label>
+            <label className="text-xs md:text-sm text-gray-600">Auto crop to logo</label>
             <button
               onClick={() => setParams({ autoCrop: !params.autoCrop })}
               className={`
-                relative w-11 h-6 rounded-full transition-colors
+                relative w-10 h-5 md:w-11 md:h-6 rounded-full transition-colors flex-shrink-0
                 ${params.autoCrop ? 'bg-gray-900' : 'bg-gray-300'}
               `}
             >
               <span
                 className={`
-                  absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full
-                  transition-transform ${params.autoCrop ? 'translate-x-5' : ''}
+                  absolute top-0.5 left-0.5 w-4 h-4 md:w-5 md:h-5 bg-white rounded-full
+                  transition-transform ${params.autoCrop ? 'translate-x-[1.125rem] md:translate-x-5' : ''}
                 `}
               />
             </button>
@@ -145,7 +145,7 @@ export function AdvancedSettings() {
           {/* Reset Button */}
           <button
             onClick={resetParamsToPreset}
-            className="w-full py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="w-full py-1.5 md:py-2 text-xs md:text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
           >
             Reset to preset defaults
           </button>

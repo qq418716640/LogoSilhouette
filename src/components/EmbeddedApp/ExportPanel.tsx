@@ -59,26 +59,26 @@ export function ExportPanel() {
   const hasResult = result?.svgClean != null
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium text-gray-700">Export</h3>
+    <div className="space-y-3 md:space-y-4">
+      <h3 className="text-xs md:text-sm font-medium text-gray-700">Export</h3>
 
       {/* 格式选择 */}
-      <div className="space-y-2">
+      <div className="space-y-1.5 md:space-y-2">
         <label className="text-xs text-gray-500 uppercase tracking-wide">Format</label>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 md:gap-2">
           {FORMAT_OPTIONS.map((option) => (
             <button
               key={option.value}
               onClick={() => setExportFormat(option.value)}
               className={`
-                flex-1 px-3 py-2 rounded-lg text-sm transition-colors
+                flex-1 px-2 py-1.5 md:px-3 md:py-2 rounded-lg text-sm transition-colors
                 ${exportFormat === option.value
                   ? 'bg-gray-900 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }
               `}
             >
-              <div className="font-medium">{option.label}</div>
+              <div className="font-medium text-xs md:text-sm">{option.label}</div>
               <div className={`text-xs ${exportFormat === option.value ? 'text-gray-300' : 'text-gray-500'}`}>
                 {option.description}
               </div>
@@ -89,15 +89,15 @@ export function ExportPanel() {
 
       {/* 分辨率选择（仅对光栅格式显示） */}
       {exportFormat !== 'svg' && (
-        <div className="space-y-2">
+        <div className="space-y-1.5 md:space-y-2">
           <label className="text-xs text-gray-500 uppercase tracking-wide">Resolution</label>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 md:gap-2">
             {RESOLUTION_OPTIONS.map((res) => (
               <button
                 key={res}
                 onClick={() => setExportResolution(res)}
                 className={`
-                  flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  flex-1 px-2 py-1.5 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-colors
                   ${exportResolution === res
                     ? 'bg-gray-900 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -105,7 +105,7 @@ export function ExportPanel() {
                 `}
               >
                 {res} × {res}
-                {res === 1024 && <span className="ml-1 text-xs opacity-70">(Default)</span>}
+                {res === 1024 && <span className="ml-1 text-xs opacity-70 hidden md:inline">(Default)</span>}
               </button>
             ))}
           </div>
@@ -113,16 +113,16 @@ export function ExportPanel() {
       )}
 
       {/* 填充色选择 */}
-      <div className="space-y-2">
+      <div className="space-y-1.5 md:space-y-2">
         <label className="text-xs text-gray-500 uppercase tracking-wide">Fill Color</label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
           {/* 预设色块 */}
           {FILL_COLOR_PRESETS.map((color) => (
             <button
               key={color}
               onClick={() => setFillColor(color)}
               className={`
-                w-8 h-8 rounded-md border-2 transition-all
+                w-7 h-7 md:w-8 md:h-8 rounded-md border-2 transition-all
                 ${fillColor === color
                   ? 'border-blue-500 scale-110'
                   : 'border-gray-200 hover:border-gray-400'
@@ -140,7 +140,7 @@ export function ExportPanel() {
           <button
             onClick={handleColorPickerClick}
             className={`
-              w-8 h-8 rounded-md border-2 transition-all relative overflow-hidden
+              w-7 h-7 md:w-8 md:h-8 rounded-md border-2 transition-all relative overflow-hidden
               ${!FILL_COLOR_PRESETS.includes(fillColor as typeof FILL_COLOR_PRESETS[number])
                 ? 'border-blue-500 scale-110'
                 : 'border-gray-200 hover:border-gray-400'
@@ -174,7 +174,7 @@ export function ExportPanel() {
 
       {/* 错误提示 */}
       {exportError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="p-2.5 md:p-3 bg-red-50 border border-red-200 rounded-lg text-xs md:text-sm text-red-700">
           {exportError}
         </div>
       )}
@@ -184,7 +184,7 @@ export function ExportPanel() {
         onClick={handleExport}
         disabled={!hasResult || isExporting}
         className={`
-          w-full py-3 px-4 rounded-xl text-base font-medium
+          w-full py-2.5 md:py-3 px-3 md:px-4 rounded-xl text-sm md:text-base font-medium
           transition-all duration-200
           ${hasResult && !isExporting
             ? 'bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98]'
@@ -194,7 +194,7 @@ export function ExportPanel() {
       >
         {isExporting ? (
           <span className="flex items-center justify-center gap-2">
-            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 md:w-5 md:h-5 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
