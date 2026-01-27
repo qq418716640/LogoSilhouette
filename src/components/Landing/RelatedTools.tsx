@@ -7,7 +7,7 @@ interface Tool {
   title: string
   description: string
   features: string[]
-  icon: string
+  iconUrl: string
   url: string
   color: string
 }
@@ -23,7 +23,7 @@ const tools: Tool[] = [
       'Industry-specific font styles',
       'Free SVG & PNG downloads',
     ],
-    icon: '✍️',
+    iconUrl: 'https://www.ailogocreator.io/images/aiLogo/textToLogo.webp',
     url: 'https://www.ailogocreator.io/ai-logo-generator/text-to-logo',
     color: 'from-blue-500 to-cyan-500',
   },
@@ -37,7 +37,7 @@ const tools: Tool[] = [
       'Real-time customization',
       'High-resolution outputs',
     ],
-    icon: '🖼️',
+    iconUrl: 'https://www.ailogocreator.io/images/aiLogo/imagesToLogo.webp',
     url: 'https://www.ailogocreator.io/ai-logo-generator/image-to-logo',
     color: 'from-purple-500 to-pink-500',
   },
@@ -51,7 +51,7 @@ const tools: Tool[] = [
       'Vector conversion',
       'Multiple style options',
     ],
-    icon: '✏️',
+    iconUrl: 'https://www.ailogocreator.io/images/aiLogo/sketchToLogo.webp',
     url: 'https://www.ailogocreator.io/ai-logo-generator/sketch-to-logo',
     color: 'from-orange-500 to-red-500',
   },
@@ -65,7 +65,7 @@ const tools: Tool[] = [
       'Geometric refinement',
       'Luxury brand focused',
     ],
-    icon: '🅰️',
+    iconUrl: 'https://www.ailogocreator.io/images/aiLogo/letterToLogo.webp',
     url: 'https://www.ailogocreator.io/ai-logo-generator/letter-to-logo',
     color: 'from-green-500 to-emerald-500',
   },
@@ -97,9 +97,14 @@ export function RelatedTools() {
             >
               {/* Icon with Gradient Background */}
               <div
-                className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}
+                className={`w-16 h-16 rounded-xl bg-gradient-to-br ${tool.color} p-3 mb-4 group-hover:scale-110 transition-transform duration-300 overflow-hidden`}
               >
-                {tool.icon}
+                <img
+                  src={tool.iconUrl}
+                  alt={`${tool.title} icon`}
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
               </div>
 
               {/* Title */}
