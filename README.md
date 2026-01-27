@@ -1,73 +1,134 @@
-# React + TypeScript + Vite
+# LogoSilhouette
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Free online Logo Silhouette Generator - Convert any logo image into a clean black silhouette SVG. 100% browser-based, your files never leave your device.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Pure Frontend**: All image processing happens client-side using Web Workers
+- **SVG Export**: Generate clean vector silhouettes from raster images
+- **Multiple Presets**: Clean Silhouette (default), Minimal Logo, Keep Details
+- **Advanced Controls**: Fine-tune tracing parameters for perfect results
+- **Format Support**: Export as SVG, transparent PNG, or JPG
+- **Privacy First**: No server upload, all processing in your browser
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** + **TypeScript 5.9** + **Vite 5.4**
+- **Tailwind CSS 4** - Styling
+- **Zustand 5** - State management
+- **imagetracerjs** - SVG tracing engine
+- **Comlink** - Web Worker communication
+- **Umami Analytics** - Privacy-friendly analytics
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 18+ and npm/yarn/pnpm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Clone the repository
+git clone https://github.com/your-username/LogoSilhouette.git
+cd LogoSilhouette
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Visit `http://localhost:5173` in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Environment Configuration
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Create environment files (optional):
+
+```bash
+# Copy example file
+cp .env.example .env.development
+
+# Configure as needed
+# - VITE_UMAMI_WEBSITE_ID: Your Umami website ID
+# - VITE_UMAMI_SRC: Umami script URL
+# - VITE_BASE_PATH: Base path for deployment (e.g., / or /logo-silhouette/)
 ```
+
+**Key configurations**:
+- **Analytics**: See [Analytics Setup Guide](./doc/Analytics_Setup_Guide.md)
+- **Base Path**: See [Base Path Configuration](./doc/Base_Path_Configuration.md) for deploying to subdirectories
+
+## Commands
+
+```bash
+npm run dev      # Start Vite dev server with HMR
+npm run build    # TypeScript compilation + Vite production build
+npm run lint     # ESLint check
+npm run preview  # Preview production build locally
+```
+
+## Architecture
+
+### Key Directories
+
+```
+src/
+├── components/
+│   ├── EmbeddedApp/        # Main tool interface
+│   ├── Hero/               # Landing hero section
+│   ├── Header/             # Site header
+│   ├── CaseGallery/        # Example showcase
+│   └── Landing/            # Landing page sections
+├── core/
+│   ├── pipeline/           # Image processing orchestration
+│   ├── steps/              # Processing steps (resize, threshold, trace, etc.)
+│   └── utils/              # Core utilities
+├── workers/                # Web Worker for async processing
+├── store/                  # Zustand state management
+├── presets/                # Processing presets
+├── export/                 # Export utilities (SVG, PNG, JPG)
+└── analytics/              # Umami analytics integration
+```
+
+### Processing Pipeline
+
+6-step incremental pipeline with caching:
+
+```
+Upload → Resize → B&W → Denoise → Crop → Trace → Clean → Export
+```
+
+- **Incremental**: Only reruns affected steps on parameter change
+- **Worker-based**: Non-blocking processing in Web Worker
+- **Timeout protection**: 15s limit with fallback
+- **Caching**: Intermediate results cached
+
+## Documentation
+
+- **[Technical Design](./doc/LogoSilhouette_技术实现方案.md)** (Chinese) - Architecture and implementation details
+- **[Parameter Control Logic](./doc/Parameters_Control_Logic.md)** (Chinese) - Parameter behavior specs
+- **[Analytics Plan](./doc/LogoSilhouette_数据埋点方案.md)** (Chinese) - Data tracking strategy
+- **[Analytics Setup](./doc/Analytics_Setup_Guide.md)** (Chinese) - Umami configuration guide
+- **[Base Path Configuration](./doc/Base_Path_Configuration.md)** - Deploy to subdirectories guide
+- **[Private Deployment Note](./doc/PRIVATE_DEPLOYMENT_NOTE.md)** - Umami private deployment notes
+- **[CLAUDE.md](./CLAUDE.md)** - Instructions for Claude Code
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+## Acknowledgments
+
+- [imagetracerjs](https://github.com/jankovicsandras/imagetracerjs) - SVG tracing library
+- [Comlink](https://github.com/GoogleChromeLabs/comlink) - Web Worker utilities
+- [Umami](https://umami.is) - Privacy-friendly analytics
+
+---
+
+Built with ❤️ for designers and developers who need quick logo silhouettes.

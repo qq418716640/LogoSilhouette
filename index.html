@@ -23,11 +23,26 @@
     <meta name="twitter:description" content="Convert any logo image into a clean black silhouette SVG. Export as SVG, PNG, or JPG." />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="apple-touch-icon" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="%VITE_BASE_PATH%favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%VITE_BASE_PATH%logo-192.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="%VITE_BASE_PATH%logo-192.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="%VITE_BASE_PATH%logo-512.svg" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="%VITE_BASE_PATH%manifest.json" />
 
     <!-- Theme Color -->
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="LogoSilhouette" />
+
+    <!-- Umami Analytics -->
+    <script
+      defer
+      src="%VITE_UMAMI_SRC%"
+      data-website-id="%VITE_UMAMI_WEBSITE_ID%"
+    ></script>
   </head>
   <body>
     <div id="root"></div>

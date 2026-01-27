@@ -9,6 +9,7 @@ import { fileToImageData } from '@/core/steps/resize512'
 import { analyzeImage, type ImageAnalysis } from '@/core/utils/performanceGuard'
 import { ImageCropper } from './ImageCropper'
 import { fileToDataUrl, getCroppedImageData, type CropArea } from '@/utils/cropImage'
+import { getAssetPath } from '@/utils/path'
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -332,7 +333,7 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
           <div className="flex flex-col items-center">
             <div className="relative">
               <img
-                src="/tips/good.png"
+                src={getAssetPath('/tips/good.png')}
                 alt="Good example"
                 className="w-16 h-16 rounded-lg object-cover"
               />
@@ -348,7 +349,7 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
           <div className="flex flex-col items-center">
             <div className="relative">
               <img
-                src="/tips/bad.png"
+                src={getAssetPath('/tips/bad.png')}
                 alt="Bad example"
                 className="w-16 h-16 rounded-lg object-cover"
               />

@@ -3,6 +3,7 @@
  */
 
 import type { ProcessParams, PresetId } from '@/presets/types'
+import { getAssetPath } from '@/utils/path'
 
 export interface CaseData {
   id: string
@@ -25,16 +26,16 @@ export interface CaseData {
 export const CASES: CaseData[] = [
   {
     id: 'case_1',
-    sourceImage: '/cases/case_1.png',
-    previewImage: '/cases/case_1_BA_43403D.png',
+    sourceImage: getAssetPath('/cases/case_1.png'),
+    previewImage: getAssetPath('/cases/case_1_BA_43403D.png'),
     title: 'Feather Quill',
     description: 'Gradient to solid color silhouette',
     fillColor: '#43403D',
   },
   {
     id: 'case_2',
-    sourceImage: '/cases/case_2.png',
-    previewImage: '/cases/case_2_BA_Minimal logo_Threshold 140_Invert colors.png',
+    sourceImage: getAssetPath('/cases/case_2.png'),
+    previewImage: getAssetPath('/cases/case_2_BA_Minimal logo_Threshold 140_Invert colors.png'),
     title: 'Geometric Logo',
     description: 'Line art with inverted colors',
     presetId: 'minimal_logo',
@@ -45,8 +46,8 @@ export const CASES: CaseData[] = [
   },
   {
     id: 'case_3',
-    sourceImage: '/cases/case_3.png',
-    previewImage: '/cases/case_3_BA_Smoothness 3.0.png',
+    sourceImage: getAssetPath('/cases/case_3.png'),
+    previewImage: getAssetPath('/cases/case_3_BA_Smoothness 3.0.png'),
     title: 'Angry Panda',
     description: 'Mascot with smooth curves',
     params: {
@@ -55,8 +56,8 @@ export const CASES: CaseData[] = [
   },
   {
     id: 'case_4',
-    sourceImage: '/cases/case_4.png',
-    previewImage: '/cases/case_4_BA_Keep details_Smoothness 3.0.png',
+    sourceImage: getAssetPath('/cases/case_4.png'),
+    previewImage: getAssetPath('/cases/case_4_BA_Keep details_Smoothness 3.0.png'),
     title: 'Black House Crest',
     description: 'Detailed emblem preserving fine lines',
     presetId: 'keep_details',

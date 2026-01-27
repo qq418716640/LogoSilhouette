@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react'
+import { getAssetPath } from '@/utils/path'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -24,9 +25,16 @@ export function Header() {
           <div className="flex-shrink-0">
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              LogoSilhouette
+              <img
+                src={getAssetPath('/logo.svg')}
+                alt="LogoSilhouette"
+                className="w-8 h-8"
+              />
+              <span className="text-xl font-bold text-gray-900">
+                LogoSilhouette
+              </span>
             </button>
           </div>
 
