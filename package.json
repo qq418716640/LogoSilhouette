@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:staging": "tsc -b && vite build --mode staging",
+    "build:production": "tsc -b && vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:staging": "npm run build:staging && vite preview",
+    "preview:production": "npm run build:production && vite preview"
   },
   "dependencies": {
     "comlink": "^4.4.2",

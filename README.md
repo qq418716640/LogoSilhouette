@@ -63,10 +63,14 @@ cp .env.example .env.development
 ## Commands
 
 ```bash
-npm run dev      # Start Vite dev server with HMR
-npm run build    # TypeScript compilation + Vite production build
-npm run lint     # ESLint check
-npm run preview  # Preview production build locally
+npm run dev                  # Start Vite dev server with HMR
+npm run build                # Build for production (uses .env.production)
+npm run build:staging        # Build for staging (uses .env.staging)
+npm run build:production     # Build for production (explicit)
+npm run lint                 # ESLint check
+npm run preview              # Preview last build
+npm run preview:staging      # Build and preview staging
+npm run preview:production   # Build and preview production
 ```
 
 ## Architecture
