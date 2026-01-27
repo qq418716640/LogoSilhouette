@@ -7,6 +7,7 @@
 | **配置文件** | `.env.development` | `.env.staging` | `.env.production` |
 | **Base Path** | `/` | `/` | `/logo-silhouette/` |
 | **Umami Website ID** | `8133b90d-...5490d` | `8133b90d-...5490d` | `1fcc9639-...3db68` |
+| **GTM ID** | ❌ 不启用 | ❌ 不启用 | `GTM-WMJSMTWF` |
 | **构建命令** | `npm run dev` | `npm run build:staging` | `npm run build:production` |
 | **典型域名** | localhost:5173 | logosilhouette.vercel.app | your-domain.com |
 | **部署位置** | 本地 | Vercel | 服务器 |
@@ -153,6 +154,7 @@ VITE_BASE_PATH=/
 ```bash
 VITE_UMAMI_WEBSITE_ID=1fcc9639-90d1-4270-83da-42d01343db68
 VITE_UMAMI_SRC=https://umami-rose-delta.vercel.app/script.js
+VITE_GTM_ID=GTM-WMJSMTWF
 VITE_BASE_PATH=/logo-silhouette/
 ```
 
@@ -316,6 +318,7 @@ Umami: 1fcc9639-90d1-4270-83da-42d01343db68
 - [Base_Path_Configuration.md](./Base_Path_Configuration.md) - Base Path 配置
 - [LogoSilhouette_数据埋点方案.md](./LogoSilhouette_数据埋点方案.md) - Analytics 方案
 - [Umami_Quick_Reference.md](./Umami_Quick_Reference.md) - Umami 快速参考
+- [GTM_Integration.md](./GTM_Integration.md) - Google Tag Manager 集成说明
 
 ---
 

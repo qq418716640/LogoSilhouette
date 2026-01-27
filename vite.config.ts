@@ -20,10 +20,31 @@ export default defineConfig(({ mode }) => {
       {
         name: 'html-transform',
         transformIndexHtml(html) {
+          // GTM code injection (only for production)
+          const gtmId = env.VITE_GTM_ID || ''
+          const gtmHeadScript = gtmId
+            ? `<!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','${gtmId}');</script>
+    <!-- End Google Tag Manager -->`
+            : ''
+
+          const gtmBodyNoScript = gtmId
+            ? `<!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->`
+            : ''
+
           return html
             .replace(/%VITE_UMAMI_WEBSITE_ID%/g, env.VITE_UMAMI_WEBSITE_ID || '')
             .replace(/%VITE_UMAMI_SRC%/g, env.VITE_UMAMI_SRC || '')
             .replace(/%VITE_BASE_PATH%/g, normalizedBase)
+            .replace('<!-- GTM_HEAD_PLACEHOLDER -->', gtmHeadScript)
+            .replace('<!-- GTM_BODY_PLACEHOLDER -->', gtmBodyNoScript)
         },
       },
     ],
