@@ -43,7 +43,8 @@
 | 环境 | 配置文件 | Website ID | 用途 |
 |------|---------|-----------|------|
 | 开发环境 | `.env.development` | `8133b90d-9f06-4b08-a1ef-9f522a35490d` | 本地开发测试 |
-| 生产环境 | `.env.production` | 待配置 | 正式线上环境 |
+| 预发布环境 | `.env.staging` | `8133b90d-9f06-4b08-a1ef-9f522a35490d` | Vercel 测试环境 |
+| 生产环境 | `.env.production` | `1fcc9639-90d1-4270-83da-42d01343db68` | 正式线上环境 |
 
 ### 2.2 配置文件
 
@@ -55,8 +56,8 @@ VITE_UMAMI_SRC=https://umami-rose-delta.vercel.app/script.js
 
 **`.env.production`** (生产环境)
 ```bash
-# TODO: 生产上线前替换为生产环境的 Website ID
-VITE_UMAMI_WEBSITE_ID=your-production-website-id
+# Production Environment
+VITE_UMAMI_WEBSITE_ID=1fcc9639-90d1-4270-83da-42d01343db68
 VITE_UMAMI_SRC=https://umami-rose-delta.vercel.app/script.js
 ```
 

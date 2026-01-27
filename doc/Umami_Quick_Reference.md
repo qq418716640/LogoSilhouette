@@ -17,10 +17,10 @@
 
 | 项目 | 值 |
 |-----|---|
-| **开发环境 Website ID** | `8133b90d-9f06-4b08-a1ef-9f522a35490d` |
-| **生产环境 Website ID** | 待配置 (使用开发 ID) |
+| **开发/Staging Website ID** | `8133b90d-9f06-4b08-a1ef-9f522a35490d` |
+| **生产环境 Website ID** | `1fcc9639-90d1-4270-83da-42d01343db68` |
 | **Umami 脚本源** | `https://umami-rose-delta.vercel.app/script.js` |
-| **环境变量文件** | `.env.development`, `.env.production` |
+| **环境变量文件** | `.env.development`, `.env.staging`, `.env.production` |
 
 ---
 

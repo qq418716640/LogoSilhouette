@@ -44,7 +44,7 @@ VITE_BASE_PATH=/
 
 ```bash
 # Production Environment
-VITE_UMAMI_WEBSITE_ID=8133b90d-9f06-4b08-a1ef-9f522a35490d
+VITE_UMAMI_WEBSITE_ID=1fcc9639-90d1-4270-83da-42d01343db68
 VITE_UMAMI_SRC=https://umami-rose-delta.vercel.app/script.js
 VITE_BASE_PATH=/logo-silhouette/
 ```
@@ -52,6 +52,7 @@ VITE_BASE_PATH=/logo-silhouette/
 **用途**: 正式线上环境
 **Base Path**: 二级路径 `/logo-silhouette/`
 **构建**: `npm run build:production` 或 `npm run build`
+**Umami**: 使用独立的生产环境 Website ID
 
 ---
 
