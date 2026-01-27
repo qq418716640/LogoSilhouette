@@ -7,7 +7,7 @@ import { Header } from '@/components/Header'
 import { Hero } from '@/components/Hero'
 import { EmbeddedApp } from '@/components/EmbeddedApp'
 import { CaseGallery } from '@/components/CaseGallery'
-import { HowItWorks, Features, UseCases, FAQ, FinalCTA } from '@/components/Landing'
+import { HowItWorks, Features, UseCases, FAQ, RelatedTools, FinalCTA } from '@/components/Landing'
 import { useError } from '@/store'
 
 function App() {
@@ -41,6 +41,7 @@ function App() {
       <Features />
       <UseCases />
       <FAQ />
+      <RelatedTools />
       <FinalCTA />
 
       {/* Footer */}
