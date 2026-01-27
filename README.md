@@ -73,6 +73,21 @@ npm run preview:staging      # Build and preview staging
 npm run preview:production   # Build and preview production
 ```
 
+## Deployment
+
+### Vercel (Staging Environment)
+
+This project is configured to deploy to Vercel as a staging environment with root path.
+
+```bash
+# Push to main branch for auto-deployment
+git push origin main
+
+# Vercel will automatically build using: npm run build:staging
+```
+
+See [Vercel Deployment Guide](./doc/Vercel_Deployment.md) for details.
+
 ## Architecture
 
 ### Key Directories
