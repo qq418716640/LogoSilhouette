@@ -75,6 +75,8 @@ export function CaseGallery() {
                 <img
                   src={caseData.previewImage}
                   alt={caseData.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-auto transition-transform group-hover:scale-[1.02]"
                 />
 

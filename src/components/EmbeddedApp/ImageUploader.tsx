@@ -3,13 +3,15 @@
  * 支持拖拽和点击上传，带裁剪功能
  */
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, lazy, Suspense } from 'react'
 import { useAppStore } from '@/store'
 import { fileToImageData } from '@/core/steps/resize512'
 import { analyzeImage, type ImageAnalysis } from '@/core/utils/performanceGuard'
-import { ImageCropper } from './ImageCropper'
 import { fileToDataUrl, getCroppedImageData, type CropArea } from '@/utils/cropImage'
 import { getAssetPath } from '@/utils/path'
+
+// 懒加载裁剪组件（react-advanced-cropper 较大）
+const ImageCropper = lazy(() => import('./ImageCropper').then(m => ({ default: m.ImageCropper })))
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -312,14 +314,20 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
         </div>
       )}
 
-        {/* 图片裁剪弹窗 */}
+        {/* 图片裁剪弹窗 - 懒加载 */}
         {showCropper && cropImageSrc && (
-          <ImageCropper
-            imageSrc={cropImageSrc}
-            onCropComplete={handleCropComplete}
-            onSkip={handleSkipCrop}
-            onCancel={handleCancelCrop}
-          />
+          <Suspense fallback={
+            <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+              <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
+            <ImageCropper
+              imageSrc={cropImageSrc}
+              onCropComplete={handleCropComplete}
+              onSkip={handleSkipCrop}
+              onCancel={handleCancelCrop}
+            />
+          </Suspense>
         )}
       </div>
 
@@ -335,6 +343,8 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
               <img
                 src={getAssetPath('/tips/good.png')}
                 alt="Good example"
+                loading="lazy"
+                decoding="async"
                 className="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover"
               />
               <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center">
@@ -351,6 +361,8 @@ export function ImageUploader({ onUploadStart, onUploadComplete, onImageAnalysis
               <img
                 src={getAssetPath('/tips/bad.png')}
                 alt="Bad example"
+                loading="lazy"
+                decoding="async"
                 className="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover"
               />
               <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-red-500 rounded-full flex items-center justify-center">

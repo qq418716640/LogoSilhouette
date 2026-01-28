@@ -3,12 +3,25 @@
  * Landing Page + Embedded App
  */
 
+import { lazy, Suspense } from 'react'
 import { Header } from '@/components/Header'
 import { Hero } from '@/components/Hero'
 import { EmbeddedApp } from '@/components/EmbeddedApp'
 import { CaseGallery } from '@/components/CaseGallery'
-import { HowItWorks, Features, UseCases, FAQ, RelatedTools, FinalCTA } from '@/components/Landing'
 import { useError } from '@/store'
+
+// 懒加载非首屏 Landing 组件
+const HowItWorks = lazy(() => import('@/components/Landing/HowItWorks').then(m => ({ default: m.HowItWorks })))
+const Features = lazy(() => import('@/components/Landing/Features').then(m => ({ default: m.Features })))
+const UseCases = lazy(() => import('@/components/Landing/UseCases').then(m => ({ default: m.UseCases })))
+const FAQ = lazy(() => import('@/components/Landing/FAQ').then(m => ({ default: m.FAQ })))
+const RelatedTools = lazy(() => import('@/components/Landing/RelatedTools').then(m => ({ default: m.RelatedTools })))
+const FinalCTA = lazy(() => import('@/components/Landing/FinalCTA').then(m => ({ default: m.FinalCTA })))
+
+// Landing 区块加载占位
+function LandingSectionFallback() {
+  return <div className="py-16" />
+}
 
 function App() {
   const error = useError()
@@ -36,13 +49,25 @@ function App() {
         <EmbeddedApp />
       </section>
 
-      {/* SEO 内容区域 */}
-      <HowItWorks />
-      <Features />
-      <UseCases />
-      <FAQ />
-      <RelatedTools />
-      <FinalCTA />
+      {/* SEO 内容区域 - 懒加载 */}
+      <Suspense fallback={<LandingSectionFallback />}>
+        <HowItWorks />
+      </Suspense>
+      <Suspense fallback={<LandingSectionFallback />}>
+        <Features />
+      </Suspense>
+      <Suspense fallback={<LandingSectionFallback />}>
+        <UseCases />
+      </Suspense>
+      <Suspense fallback={<LandingSectionFallback />}>
+        <FAQ />
+      </Suspense>
+      <Suspense fallback={<LandingSectionFallback />}>
+        <RelatedTools />
+      </Suspense>
+      <Suspense fallback={<LandingSectionFallback />}>
+        <FinalCTA />
+      </Suspense>
 
       {/* Footer */}
       <footer className="py-8 px-4 text-center text-sm text-gray-500">
