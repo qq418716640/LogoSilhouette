@@ -1,0 +1,6 @@
+# robots.txt for LogoSilhouette
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://logosilhouette.com/sitemap.xml
